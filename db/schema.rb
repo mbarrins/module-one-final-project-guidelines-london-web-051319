@@ -10,7 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190524221707) do
+ActiveRecord::Schema.define(version: 20190524222259) do
+
+  create_table "genres", force: :cascade do |t|
+    t.string "tm_id"
+    t.string "name"
+  end
 
   create_table "segments", force: :cascade do |t|
     t.string "tm_id"
