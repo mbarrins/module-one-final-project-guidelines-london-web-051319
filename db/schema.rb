@@ -28,17 +28,17 @@ ActiveRecord::Schema.define(version: 20190524223905) do
 
   create_table "genres", force: :cascade do |t|
     t.string "tm_genre_id"
-    t.string "genre"
+    t.string "genre_name"
   end
 
   create_table "segments", force: :cascade do |t|
     t.string "tm_segment_id"
-    t.string "segment"
+    t.string "segment_name"
   end
 
   create_table "sub_genres", force: :cascade do |t|
     t.string "tm_sub_genre_id"
-    t.string "sub_genre"
+    t.string "sub_genre_name"
   end
 
   create_table "user_events", force: :cascade do |t|
@@ -49,6 +49,8 @@ ActiveRecord::Schema.define(version: 20190524223905) do
 
   create_table "users", force: :cascade do |t|
     t.string "username"
+    t.string "first_name"
+    t.string "last_name"
     t.string "email"
     t.string "postcode"
     t.string "city"
@@ -57,7 +59,7 @@ ActiveRecord::Schema.define(version: 20190524223905) do
 
   create_table "venues", force: :cascade do |t|
     t.string "tm_venue_id"
-    t.string "venue"
+    t.string "venue_name"
     t.string "url"
     t.string "postcode"
     t.string "city"
