@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190524222500) do
+ActiveRecord::Schema.define(version: 20190524223148) do
 
   create_table "genres", force: :cascade do |t|
     t.string "tm_genre_id"
@@ -39,6 +39,18 @@ ActiveRecord::Schema.define(version: 20190524222500) do
     t.string "postcode"
     t.string "city"
     t.string "country"
+  end
+
+  create_table "venues", force: :cascade do |t|
+    t.string "tm_venue_id"
+    t.string "venue"
+    t.string "url"
+    t.string "postcode"
+    t.string "city"
+    t.string "country"
+    t.string "address"
+    t.float  "longitude"
+    t.float  "latitude"
   end
 
 end
