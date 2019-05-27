@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190524223905) do
+ActiveRecord::Schema.define(version: 20190525091409) do
 
   create_table "events", force: :cascade do |t|
     t.string  "tm_event_id"
@@ -29,6 +29,12 @@ ActiveRecord::Schema.define(version: 20190524223905) do
   create_table "genres", force: :cascade do |t|
     t.string "tm_genre_id"
     t.string "genre_name"
+  end
+
+  create_table "reviews", force: :cascade do |t|
+    t.integer "user_event_id"
+    t.integer "rating"
+    t.text    "review"
   end
 
   create_table "segments", force: :cascade do |t|
