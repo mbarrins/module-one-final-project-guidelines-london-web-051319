@@ -12,6 +12,18 @@
 
 ActiveRecord::Schema.define(version: 20190527195746) do
 
+  create_table "event_dates", force: :cascade do |t|
+    t.string  "tm_event_date_id"
+    t.string  "event_date_name"
+    t.string  "url"
+    t.string  "sales_start_date"
+    t.string  "sales_end_date"
+    t.string  "start_date"
+    t.string  "start_time"
+    t.integer "event_id"
+    t.integer "venue_id"
+  end
+
   create_table "events", force: :cascade do |t|
     t.string  "tm_event_id"
     t.string  "event_name"
@@ -50,6 +62,7 @@ ActiveRecord::Schema.define(version: 20190527195746) do
 
   create_table "users", force: :cascade do |t|
     t.string "username"
+    t.string "password"
     t.string "first_name"
     t.string "last_name"
     t.string "email"
