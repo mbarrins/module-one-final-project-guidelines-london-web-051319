@@ -2,8 +2,8 @@ class CreateEventDates < ActiveRecord::Migration[5.0]
   def change
     def change
       create_table :events do |t|
-        t.string :tm_event_dates_id
-        t.string :event_dates_name
+        t.string :tm_event_date_id
+        t.string :event_date_name
         t.string :url
         t.string :sales_start_date
         t.string :sales_end_date
