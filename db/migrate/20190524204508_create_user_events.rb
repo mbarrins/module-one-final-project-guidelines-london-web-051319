@@ -4,7 +4,6 @@ class CreateUserEvents < ActiveRecord::Migration[5.0]
       t.integer :user_id
       t.integer :event_id
       t.integer :event_date_id
-      t.string :status
     end
   end
 end
