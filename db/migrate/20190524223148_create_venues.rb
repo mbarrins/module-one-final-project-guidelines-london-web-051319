@@ -7,9 +7,6 @@ class CreateVenues < ActiveRecord::Migration[5.0]
       t.string :postcode
       t.string :city
       t.string :country
-      t.string :address
-      t.float :longitude
-      t.float :latitude
     end
   end
 end

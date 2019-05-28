@@ -45,8 +45,6 @@ event_dates["_embedded"]["events"].each do |event_date|
       tm_event_date_id: event_date["id"],
       event_date_name: event_date["name"],
       url: event_date["url"],
-      sales_start_date: (!!event_date["sales"]["public"]["startDateTime"] ? event_date["sales"]["public"]["startDateTime"][0..9] : nil),
-      sales_end_date: (!!event_date["sales"]["public"]["endDateTime"] ? event_date["sales"]["public"]["endDateTime"][0..9] : nil),
       start_date: event_date["dates"]["start"]["localDate"],
       start_time: event_date["dates"]["start"]["localTime"],
       event_id: event_date["_embedded"]["attractions"][0]["id"],
@@ -61,10 +59,7 @@ event_dates["_embedded"]["events"].each do |event_date|
     url: venue["url"],
     postcode: venue["postalCode"],
     city: venue["city"]["name"],
-    country: venue["country"]["name"],
-    address: (!!venue["address"] ? venue["address"]["line1"] : nil),
-    longitude: venue["location"]["longitude"],
-    latitude: venue["location"]["latitude"]
+    country: venue["country"]["name"]
   })
 
   event = event_date["_embedded"]["attractions"][0]

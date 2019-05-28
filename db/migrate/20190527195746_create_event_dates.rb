@@ -4,8 +4,6 @@ class CreateEventDates < ActiveRecord::Migration[5.0]
       t.string :tm_event_date_id
       t.string :event_date_name
       t.string :url
-      t.string :sales_start_date
-      t.string :sales_end_date
       t.string :start_date
       t.string :start_time
       t.integer :event_id

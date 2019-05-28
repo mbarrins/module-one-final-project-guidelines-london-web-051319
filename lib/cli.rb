@@ -73,14 +73,48 @@ class UserInterface
         selection = @@prompt.select("Please choose an option:", options)
         choice = options.index(selection)
         if choice == 0
-            user.future_user_events
+            user.display_future_user_events
+            events(user)
         elsif choice == 1
-            user.events
+            user.display_all_user_events
+            events(user)
         elsif choice == 2
             event_search(user)
         else
-            first_page
+            home_page(user)
         end
+    end
+
+    def self.reviews(user)
+        options = ["All My Reviews", "New Review", "Edit Review", "Home Page"]
+        selection = @@prompt.select("Please choose an option:", options)
+        choice = options.index(selection)
+        if choice == 0
+            user.display_all_user_reviews
+            reviews(user)
+        elsif choice == 1
+            options = user.select_user_events_to_review[1]
+            event_ids = user.select_user_events_to_review[0]
+            selection = @@prompt.select("Please choose an event to review:", options)
+            choice = options.index(selection)
+            create_review(user, event_ids[choice])
+            user = User.find(user.id)
+            reviews(user)
+        elsif choice == 2
+            reviews(user)
+        else
+            home_page(user)
+        end
+    end
+
+    def self.create_review(user, event_id)
+        review_info = @@prompt.collect do
+            key(:rating).ask('Please enter your rating for this event (1-10):', required: true)
+            key(:review).ask('Please enter your review:')
+        end
+        review_info[:user_id] = user.id
+        review_info[:event_id] = event_id
+        Review.create(review_info)
     end
 
 end

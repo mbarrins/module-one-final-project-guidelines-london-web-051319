@@ -16,8 +16,6 @@ ActiveRecord::Schema.define(version: 20190527195746) do
     t.string  "tm_event_date_id"
     t.string  "event_date_name"
     t.string  "url"
-    t.string  "sales_start_date"
-    t.string  "sales_end_date"
     t.string  "start_date"
     t.string  "start_time"
     t.integer "event_id"
@@ -39,7 +37,8 @@ ActiveRecord::Schema.define(version: 20190527195746) do
   end
 
   create_table "reviews", force: :cascade do |t|
-    t.integer "user_event_id"
+    t.integer "user_id"
+    t.integer "event_id"
     t.integer "rating"
     t.text    "review"
   end
@@ -56,7 +55,6 @@ ActiveRecord::Schema.define(version: 20190527195746) do
 
   create_table "user_events", force: :cascade do |t|
     t.integer "user_id"
-    t.integer "event_id"
     t.integer "event_date_id"
   end
 
@@ -77,9 +75,6 @@ ActiveRecord::Schema.define(version: 20190527195746) do
     t.string "postcode"
     t.string "city"
     t.string "country"
-    t.string "address"
-    t.float  "longitude"
-    t.float  "latitude"
   end
 
 end
