@@ -2,8 +2,7 @@ require 'pry'
 require 'rest-client'
 require 'JSON'
 
-
-binding.pry
+# binding.pry
 ""
 #Take event data and split it up into events, venues,
 #attractions, segment, genre, sub-genre tables
