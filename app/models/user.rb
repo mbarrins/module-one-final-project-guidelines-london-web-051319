@@ -5,15 +5,15 @@ class User < ActiveRecord::Base
     has_many :reviews, through: :user_events
 
     def future_user_events
-        self.user_event.joins(:event_date).where("event_dates.start_date >= #{Date.today}")
+        self.user_events.joins(:event_date).where("event_dates.start_date >= #{Date.today}")
     end
 
     def past_user_events
-        self.user_event.joins(:event_date).where("event_dates.start_date < #{Date.today}")
+        self.user_events.joins(:event_date).where("event_dates.start_date < #{Date.today}")
     end
 
     def events_by_date_range(start_date, end_date)
-        self.user_event.joins(:event_date).where("event_dates.start_date BETWEEN ? AND ?", start_date, end_date)
+        self.user_events.joins(:event_date).where("event_dates.start_date BETWEEN ? AND ?", start_date, end_date)
     end
 
     def change_email(email)
