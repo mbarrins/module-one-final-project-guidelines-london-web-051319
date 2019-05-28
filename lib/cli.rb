@@ -159,11 +159,11 @@ class UserInterface
             new_username = @@prompt.ask('Please choose a new username:')
             user.change_username(new_username)
         elsif choice == 1
-            # name = @@prompt.collect do
-            #     key(:first_name).ask('Please enter your new first name:')
-            #     key(:last_name).ask('Please enter your new last name:')
-            # user.change_name(name)
-            # end
+            name = @@prompt.collect do
+                key(:first_name).ask('Please enter your new first name:')
+                key(:last_name).ask('Please enter your new last name:')
+            user.change_name(name)
+            end
         elsif choice == 2
             new_email = @@prompt.ask('Please choose a new email address')
             user.change_email(new_email)
