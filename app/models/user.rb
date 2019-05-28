@@ -1,5 +1,3 @@
-
-
 class User < ActiveRecord::Base
     has_many :user_events
     has_many :event_dates, through: :user_events
@@ -48,11 +46,6 @@ class User < ActiveRecord::Base
         review_info[:user_id] = self.id
         Review.create(review_info)
     end
-
-    # def past_user_events
-    #     user_events = self.user_events.joins(:event_date).where("event_dates.start_date < #{Date.today}")
-    #     display_user_event_details(user_events)
-    # end
 
     def events_by_date_range(start_date, end_date)
         user_events = self.user_events.joins(:event_date).where("event_dates.start_date BETWEEN ? AND ?", start_date, end_date)

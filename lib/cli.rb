@@ -7,8 +7,6 @@ class UserInterface
     def self.first_page
         options = ["Login", "Create Account", "Exit"]
         choice = selection(options)
-        # selection = @@prompt.select("Please choose an option:", options)
-        # choice = options.index(selection)
         if choice == 0
             login
         elsif choice == 1
@@ -57,8 +55,6 @@ class UserInterface
     def self.home_page(user)
         options = ["Events", "My Reviews", "My Account", "Logout"]
         choice = selection(options)
-        # selection = @@prompt.select("Please choose an option:", options)
-        # choice = options.index(selection)
         if choice == 0
             events(user)
         elsif choice == 1
@@ -73,8 +69,6 @@ class UserInterface
     def self.events(user)
         options = ["My Upcoming Events", "All My Events", "Event Search", "Home Page"]
         choice = selection(options)
-        # selection = @@prompt.select("Please choose an option:", options)
-        # choice = options.index(selection)
         if choice == 0
             user.display_future_user_events
             events(user)
@@ -91,8 +85,6 @@ class UserInterface
     def self.reviews(user)
         options = ["All My Reviews", "New Review", "Edit Review", "Home Page"]
         choice = selection(options)
-        #  @@prompt.select("Please choose an option:", options)
-        # choice = options.index(selection)
         if choice == 0
             user.display_all_user_reviews
             reviews(user)
