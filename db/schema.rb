@@ -58,7 +58,6 @@ ActiveRecord::Schema.define(version: 20190527195746) do
     t.integer "user_id"
     t.integer "event_id"
     t.integer "event_date_id"
-    t.string  "status"
   end
 
   create_table "users", force: :cascade do |t|
@@ -67,7 +66,6 @@ ActiveRecord::Schema.define(version: 20190527195746) do
     t.string "first_name"
     t.string "last_name"
     t.string "email"
-    t.string "postcode"
     t.string "city"
     t.string "country"
   end
