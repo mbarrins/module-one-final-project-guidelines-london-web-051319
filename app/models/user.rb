@@ -54,30 +54,36 @@ class User < ActiveRecord::Base
 
     def change_email(email)
         self.update(email: email)
+        puts "Successfully updated!"
     end
 
     def change_username(username)
-        if !!Users.find_by(username: username)
+        if !!User.find_by(username: username)
             puts "That username is already taken."
         else
             self.update(username: username)
+            puts "Successfully updated!"
         end
     end
 
     def change_name(first_name, last_name)
         self.update(first_name: first_name, last_name: last_name)
+        puts "Successfully updated!"
     end
 
     def change_city(city)
         self.update(city: city)
+        puts "Successfully updated!"
     end
 
     def change_country(country)
         self.update(country: country)
+        puts "Successfully updated!"
     end
 
     def delete_account
         Users.destroy(self)
+        puts "Account deleted :("
     end
 
     private

@@ -152,4 +152,33 @@ class UserInterface
         review_obj.update(review_info)
     end
 
+    def self.account(user)
+        options = ["Change Username", "Change Name", "Change Email Address", "Change City", "Change Country", "Delete Account", "Home"]
+        choice = selection(options)
+        if choice == 0
+            new_username = @@prompt.ask('Please choose a new username:')
+            user.change_username(new_username)
+        elsif choice == 1
+            # name = @@prompt.collect do
+            #     key(:first_name).ask('Please enter your new first name:')
+            #     key(:last_name).ask('Please enter your new last name:')
+            # user.change_name(name)
+            # end
+        elsif choice == 2
+            new_email = @@prompt.ask('Please choose a new email address')
+            user.change_email(new_email)
+        elsif choice == 3
+            new_city = @@prompt.ask('Please choose a new city')
+            user.change_city(new_city)
+        elsif choice == 4
+            new_country = @@prompt.ask('Please choose a new country')
+            user.change_country(new_country)
+        elsif choice == 5
+            user.delete_account
+        else
+            self.home_page(user)
+        end
+        self.account(user)
+    end
+
 end

@@ -109,3 +109,5 @@ user_list.each do |username, password, first_name, last_name, email, city, count
   User.create(username: username, password: password, first_name: first_name, last_name: last_name, email: email, city: city, country: country)
 end
 
+user2 = User.create(username: "a", password: "b", first_name: "a", last_name: "b", email: "c")
+
