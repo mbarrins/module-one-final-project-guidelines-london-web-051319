@@ -26,6 +26,11 @@ class User < ActiveRecord::Base
         self.reviews.map{|review| review.event}.uniq
     end
 
+    def select_user_reviews_to_edit
+        events = self.user_reviewed_events.sort
+        [events.map{|event| event.id}, events.map.with_index(1){|event, i| "#{i}: #{event.event_name}"}]
+    end
+
     def user_not_reviewed_events
         self.events.uniq - self.user_reviewed_events
     end
@@ -85,6 +90,9 @@ class User < ActiveRecord::Base
     private
 
     def display_user_event_details(user_events)
+        if user_events.length == 0
+            puts "You have no events"
+        else
         user_events.each.with_index(1) do |user_event, i|
             puts "Event #{i}: #{user_event.event_date.event.event_name}"
             puts "Event name: #{user_event.event_date.event_date_name}"
@@ -93,13 +101,18 @@ class User < ActiveRecord::Base
             puts "--------------------------" if i < user_events.length
         end
     end
+    end
 
     def display_user_review_details(reviews)
+        if reviews.length == 0
+            puts "You have no reviews"
+        else
         reviews.each.with_index(1) do |review, i|
             puts "Event #{i}: #{review.event.event_name}"
             puts "Rating: #{review.rating}"
             puts "Review: #{review.review}"
             puts "--------------------------" if i < reviews.length
         end
+    end
     end
 end

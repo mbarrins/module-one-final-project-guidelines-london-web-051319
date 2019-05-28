@@ -6,8 +6,9 @@ class UserInterface
 
     def self.first_page
         options = ["Login", "Create Account", "Exit"]
-        selection = @@prompt.select("Please choose an option:", options)
-        choice = options.index(selection)
+        choice = selection(options)
+        # selection = @@prompt.select("Please choose an option:", options)
+        # choice = options.index(selection)
         if choice == 0
             login
         elsif choice == 1
@@ -55,8 +56,9 @@ class UserInterface
 
     def self.home_page(user)
         options = ["Events", "My Reviews", "My Account", "Logout"]
-        selection = @@prompt.select("Please choose an option:", options)
-        choice = options.index(selection)
+        choice = selection(options)
+        # selection = @@prompt.select("Please choose an option:", options)
+        # choice = options.index(selection)
         if choice == 0
             events(user)
         elsif choice == 1
@@ -70,8 +72,9 @@ class UserInterface
 
     def self.events(user)
         options = ["My Upcoming Events", "All My Events", "Event Search", "Home Page"]
-        selection = @@prompt.select("Please choose an option:", options)
-        choice = options.index(selection)
+        choice = selection(options)
+        # selection = @@prompt.select("Please choose an option:", options)
+        # choice = options.index(selection)
         if choice == 0
             user.display_future_user_events
             events(user)
@@ -87,20 +90,25 @@ class UserInterface
 
     def self.reviews(user)
         options = ["All My Reviews", "New Review", "Edit Review", "Home Page"]
-        selection = @@prompt.select("Please choose an option:", options)
-        choice = options.index(selection)
+        choice = selection(options)
+        #  @@prompt.select("Please choose an option:", options)
+        # choice = options.index(selection)
         if choice == 0
             user.display_all_user_reviews
             reviews(user)
         elsif choice == 1
-            options = user.select_user_events_to_review[1]
+            if user.select_user_events_to_review[1].length == 0
+                puts "You have reviewed all your events"
+            else options = user.select_user_events_to_review[1]
             event_ids = user.select_user_events_to_review[0]
             selection = @@prompt.select("Please choose an event to review:", options)
             choice = options.index(selection)
             create_review(user, event_ids[choice])
             user = User.find(user.id)
+            end
             reviews(user)
         elsif choice == 2
+            select_review_to_edit(user)
             reviews(user)
         else
             home_page(user)
@@ -109,12 +117,47 @@ class UserInterface
 
     def self.create_review(user, event_id)
         review_info = @@prompt.collect do
-            key(:rating).ask('Please enter your rating for this event (1-10):', required: true)
+            key(:rating).ask('Please enter your rating for this event (1-10):') do |q| 
+                    q.required true
+                    q.validate /^(?:[1-9]|0[1-9]|10)$/
+                    q.messages[:valid?] = "Please enter rating between 1-10. They're not that good!"
+                    end
             key(:review).ask('Please enter your review:')
         end
         review_info[:user_id] = user.id
         review_info[:event_id] = event_id
         Review.create(review_info)
+    end
+
+    def self.selection(options)
+        selection = @@prompt.select("Please choose an option:", options)
+        options.index(selection)
+    end
+
+    def self.select_review_to_edit(user)
+        if user.reviews.length == 0
+            puts "You have reviewed all your events"
+        else reviews = user.reviews
+        options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"}
+        selection = @@prompt.select("Please choose a review to edit:", options)
+        choice = options.index(selection)
+        edit_review(reviews[choice])
+        user = User.find(user.id)
+        end
+    
+    end
+
+    def self.edit_review(review_obj)
+        review_info = @@prompt.collect do
+            key(:rating).ask('Please enter your new rating for this event (1-10):') do |q| 
+                q.required true
+                q.validate /^(?:[1-9]|0[1-9]|10)$/
+                q.messages[:valid?] = "Please enter rating between 1-10. They're not that good!"
+                q.value review_obj.rating.to_s
+                end
+            key(:review).ask('Please enter your new review:', value: review_obj.review)
+        end
+        review_obj.update(review_info)
     end
 
 end
