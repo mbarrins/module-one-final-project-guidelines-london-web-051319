@@ -28,6 +28,18 @@ end
 #   g.save
 # end
 
+sub_genres.each do |sub_genre|
+  sg = SubGenre.find_by(tm_sub_genre_id: sub_genre[:tm_sub_genre_id])
+  sg.genre_id = Genre.find_by(tm_genre_id: sub_genre[:genre_id]).id 
+  sg.save
+end
+
+genres.each do |genre|
+  g = Genre.find_by(tm_genre_id: genre[:tm_genre_id])
+  g.segment_id = Segment.find_by(tm_segment_id: genre[:segment_id]).id 
+  g.save
+end
+
 segments.each do |segment|
   if !Segment.find_by(tm_segment_id: segment[:tm_segment_id])
     Segment.create(segment)
