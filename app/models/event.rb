@@ -20,6 +20,7 @@ class Event < ActiveRecord::Base
             next_url = events_json["_links"]["next"]
 
             events = [events.map do |event_date|
+                # binding.pry
                 [{
                 tm_event_date_id: event_date["id"],
                 event_date_name: event_date["name"],
@@ -36,12 +37,12 @@ class Event < ActiveRecord::Base
                 country: event_date["_embedded"]["venues"][0]["country"]["name"]
                 },
                 {
-                tm_event_id: event_date["_embedded"]["attractions"][0]["id"],
-                event_name: event_date["_embedded"]["attractions"][0]["name"],
-                url: event_date["_embedded"]["attractions"][0]["url"],
-                segment_id: Segment.find_by(tm_segment_id: event_date["_embedded"]["attractions"][0]["classifications"][0]["segment"]["id"]).id,
-                genre_id: Genre.find_by(tm_genre_id: event_date["_embedded"]["attractions"][0]["classifications"][0]["genre"]["id"]).id,
-                sub_genre_id: SubGenre.find_by(tm_sub_genre_id: event_date["_embedded"]["attractions"][0]["classifications"][0]["subGenre"]["id"]).id
+                tm_event_id: (!!event_date["_embedded"]["attractions"] ? event_date["_embedded"]["attractions"][0]["id"] : event_date["id"]),
+                event_name: (!!event_date["_embedded"]["attractions"] ? event_date["_embedded"]["attractions"][0]["name"] : event_date["name"]),
+                url: (!!event_date["_embedded"]["attractions"] ? event_date["_embedded"]["attractions"][0]["url"] : event_date["url"]),
+                segment_id: Segment.find_by(tm_segment_id: event_date["classifications"][0]["segment"]["id"]).id,
+                genre_id: Genre.find_by(tm_genre_id: event_date["classifications"][0]["genre"]["id"]).id,
+                sub_genre_id: SubGenre.find_by(tm_sub_genre_id: event_date["classifications"][0]["subGenre"]["id"]).id
                 }]
             end]
         end
