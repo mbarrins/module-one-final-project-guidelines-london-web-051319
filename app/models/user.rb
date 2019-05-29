@@ -52,6 +52,32 @@ class User < ActiveRecord::Base
         display_user_event_details(user_events)
     end
 
+    def add_event_from_json(event_details)
+        event_date = EventDate.find_by(tm_event_date_id: event_details[0][:tm_event_date_id])
+
+        if !!event_date
+            self.user_event.create(event_date.id)
+        else
+            venue = Venue.find_by(tm_venue_id: event_details[1][:tm_venue_id])
+
+            if !venue
+                venue = Venue.create(event_details[1])
+            end
+
+            event = Event.find_by(tm_event_id: event_details[2][:tm_event_id])
+            
+            if !event
+                event = Event.create(event_details[2])
+            end
+
+            event_details[0][:event_id] = event.id
+            event_details[0][:venue_id] = venue.id
+            event_date = EventDate.create(event_details[0])
+            UserEvent.create(user_id: self.id, event_date_id: event_date.id)
+        end
+
+    end
+
     def change_email(email)
         self.update(email: email)
         puts "Successfully updated!"

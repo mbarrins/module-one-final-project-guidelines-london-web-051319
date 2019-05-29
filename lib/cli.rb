@@ -67,7 +67,7 @@ class UserInterface
     end
 
     def self.events(user)
-        options = ["My Upcoming Events", "All My Events", "Event Search", "Home Page"]
+        options = ["My Upcoming Events", "All My Events", "Add New Event", "Home Page"]
         choice = selection(options)
         if choice == 0
             user.display_future_user_events
@@ -178,6 +178,53 @@ class UserInterface
         else
             self.home_page(user)
         end
+    end
+
+    def self.event_search(user)
+        puts "Please enter search criteria. Leave blank to exclude from search."
+        search_info = @@prompt.collect do
+            key(:keyword).ask('Please enter the name of the event:')
+            key(:startDateTime).ask('Please enter the date range to search: \n Start date:', value: Date.today.strftime("%F"))<<"T00:00:00Z"
+            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
+            key(:city).ask('Please enter the city to search:')
+            key(:countryCode).ask('Please enter the country to search:', value: "GB")
+        end
+        
+        search_info = search_info.select{|key,value| !!value}
+        search_string = search_info.map {|key,search| "&#{key}=#{search}"}.join("")
+
+        select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, 0)), user)
+
+    end
+
+    def self.select_event_to_create(events, search_string, page_no, next_url, user)
+        if events.length == 0
+            puts "You search returned no events"
+            events(user)
+        else 
+            options = (events.map.with_index(1) do |event, i| 
+                "Event #{i+(page_no*events.length)}: #{event[2][:event_name]}\n" << 
+                "Event name: #{event[0][:event_date_name]}\n" <<
+                "When: #{event[0][:start_date]} at #{event[0][:start_time]}\n" <<
+                "Where: #{event[1][:venue_name]}, #{event[1][:city]}, #{event[1][:postcode]}\n" <<
+                "--------------------------"
+            end << (!next_url ? "Back" : ["Load More", "Back"])).flatten
+            selection = @@prompt.select("Please choose an event to add:", options)
+            choice = options.index(selection)
+            
+            if choice < events.length
+                user.add_event_from_json(events[choice])
+                user = User.find(user.id)
+                events(user)
+            elsif choice == options.index("Load More")
+                page_no += 1
+                # binding.pry
+                select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, page_no)), user)
+            else
+                events(user)
+            end
+        end
+    
     end
 
 end
