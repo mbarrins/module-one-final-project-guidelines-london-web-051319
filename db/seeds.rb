@@ -17,7 +17,7 @@ classifications["_embedded"]["classifications"][11..-1].each do |c|
 end
 
 sub_genres.each do |sub_genre|
-  sg = SubGenre.find_by(tm_sub_genre_id: sub_genre[:tm_sub_genre_id]
+  sg = SubGenre.find_by(tm_sub_genre_id: sub_genre[:tm_sub_genre_id])
   sg.genre_id = Genre.find_by(tm_genre_id: sub_genre[:genre_id]).id 
   sg.save
 end
