@@ -178,7 +178,6 @@ class UserInterface
         else
             self.home_page(user)
         end
-        self.account(user)
     end
 
 end
