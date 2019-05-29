@@ -16,17 +16,17 @@ classifications["_embedded"]["classifications"][11..-1].each do |c|
   end
 end
 
-sub_genres.each do |sub_genre|
-  sg = SubGenre.find_by(tm_sub_genre_id: sub_genre[:tm_sub_genre_id]
-  sg.genre_id = Genre.find_by(tm_genre_id: sub_genre[:genre_id]).id 
-  sg.save
-end
+# sub_genres.each do |sub_genre|
+#   sg = SubGenre.find_by(tm_sub_genre_id: sub_genre[:tm_sub_genre_id])
+#   sg.genre_id = Genre.find_by(tm_genre_id: sub_genre[:genre_id]).id 
+#   sg.save
+# end
 
-genres.each do |genre|
-  g = Genre.find_by(tm_genre_id: genre[:tm_genre_id])
-  g.segment_id = Segment.find_by(tm_segment_id: genre[:segment_id]).id 
-  g.save
-end
+# genres.each do |genre|
+#   g = Genre.find_by(tm_genre_id: genre[:tm_genre_id])
+#   g.segment_id = Segment.find_by(tm_segment_id: genre[:segment_id]).id 
+#   g.save
+# end
 
 segments.each do |segment|
   if !Segment.find_by(tm_segment_id: segment[:tm_segment_id])
@@ -35,9 +35,17 @@ segments.each do |segment|
 end
 
 genres.each do |genre|
+  genre[:segment_id] = (!!Segment.find_by(tm_segment_id: genre[:segment_id]) ? Segment.find_by(tm_segment_id: genre[:segment_id]).id : genre[:segment_id])
+end
+
+genres.each do |genre|
   if !Genre.find_by(tm_genre_id: genre[:tm_genre_id])
     Genre.create(genre)
   end
+end
+
+sub_genres.each do |genre|
+  sub_genre[:genre_id] = (!!Genre.find_by(tm_genre_id: sub_genre[:genre_id]) ? Genre.find_by(tm_genre_id: sub_genre[:genre_id]).id : sub_genre[:genre_id])
 end
 
 sub_genres.each do |sub_genre|
