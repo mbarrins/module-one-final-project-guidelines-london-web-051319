@@ -180,6 +180,7 @@ class UserInterface
         else
             self.home_page(user)
         end
+        account(user)
     end
 
     def self.event_search(user)
@@ -233,14 +234,14 @@ class UserInterface
         if user.user_events.length == 0
             puts "You have no events"
         else events = user.user_events
-        options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.city}"}
+        options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"}
         selection = @@prompt.select("Please choose an event to delete:", options)
         choice = options.index(selection)
         events[choice].destroy
         user = User.find(user.id)
         puts "Event successfully removed!"
         end
-        user(events)
+        events(user)
     end
 
 end
