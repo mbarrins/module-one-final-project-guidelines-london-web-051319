@@ -183,7 +183,7 @@ class UserInterface
         account(user)
     end
 
-    def search_choice(user)
+    def self.search_choice(user)
         options = ["Search by Event Name", "Search by Event Type", "Event Home"]
         choice = selection(options)
         if choice == 0
