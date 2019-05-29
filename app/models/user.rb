@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
         event_date = EventDate.find_by(tm_event_date_id: event_details[0][:tm_event_date_id])
 
         if !!event_date
-            self.user_event.create(event_date.id)
+            UserEvent.create(user_id: self.id, event_date_id: event_date.id)
         else
             venue = Venue.find_by(tm_venue_id: event_details[1][:tm_venue_id])
 

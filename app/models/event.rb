@@ -11,17 +11,13 @@ class Event < ActiveRecord::Base
         [JSON.parse(RestClient.get("https://app.ticketmaster.com/discovery/v2/events?apikey=sqj3GomEiDTyMWkLzNhfrH0r62ZC82EA#{search_string}&page=#{page_no}&size=10")), search_string, page_no]
     end
 
-    # def self.get_next_json(url, page_no)
-    #     [JSON.parse(RestClient.get(url)), page_no += 1]
-    # end
-
     def self.new_event_search(events_json, search_string, page_no)
         if events_json["page"]["totalElements"] == 0
             events = [[]]
             next_url = nil
         else
             events = events_json["_embedded"]["events"]
-            next_url = "https://app.ticketmaster.com" << events_json["_links"]["next"]["href"]
+            next_url = events_json["_links"]["next"]
 
             events = [events.map do |event_date|
                 [{
@@ -29,7 +25,7 @@ class Event < ActiveRecord::Base
                 event_date_name: event_date["name"],
                 url: event_date["url"],
                 start_date: event_date["dates"]["start"]["localDate"],
-                start_time: event_date["dates"]["start"]["localTime"],
+                start_time: event_date["dates"]["start"]["localTime"]
                 },
                 {
                 tm_venue_id: event_date["_embedded"]["venues"][0]["id"],
@@ -37,7 +33,7 @@ class Event < ActiveRecord::Base
                 url: event_date["_embedded"]["venues"][0]["url"],
                 postcode: event_date["_embedded"]["venues"][0]["postalCode"],
                 city: event_date["_embedded"]["venues"][0]["city"]["name"],
-                country: event_date["_embedded"]["venues"][0]["country"]["name"],
+                country: event_date["_embedded"]["venues"][0]["country"]["name"]
                 },
                 {
                 tm_event_id: event_date["_embedded"]["attractions"][0]["id"],
@@ -65,4 +61,6 @@ class Event < ActiveRecord::Base
             end
         end
     end
+
+    
 end

@@ -67,7 +67,7 @@ class UserInterface
     end
 
     def self.events(user)
-        options = ["My Upcoming Events", "All My Events", "Add New Event", "Home Page"]
+        options = ["My Upcoming Events", "All My Events", "Add New Event", "Remove Event", "Home Page"]
         choice = selection(options)
         if choice == 0
             user.display_future_user_events
@@ -77,6 +77,8 @@ class UserInterface
             events(user)
         elsif choice == 2
             event_search(user)
+        elsif choice == 3
+            remove_event(user)
         else
             home_page(user)
         end
@@ -199,7 +201,7 @@ class UserInterface
 
     def self.select_event_to_create(events, search_string, page_no, next_url, user)
         if events.length == 0
-            puts "You search returned no events"
+            puts "Your search returned no events"
             events(user)
         else 
             options = (events.map.with_index(1) do |event, i| 
@@ -225,6 +227,20 @@ class UserInterface
             end
         end
     
+    end
+
+    def self.remove_event(user)
+        if user.user_events.length == 0
+            puts "You have no events"
+        else events = user.user_events
+        options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.city}"}
+        selection = @@prompt.select("Please choose an event to delete:", options)
+        choice = options.index(selection)
+        events[choice].destroy
+        user = User.find(user.id)
+        puts "Event successfully removed!"
+        end
+        user(events)
     end
 
 end
