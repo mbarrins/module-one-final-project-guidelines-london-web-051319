@@ -8,12 +8,24 @@ classifications["_embedded"]["classifications"][11..-1].each do |c|
   segments.add({tm_segment_id: c["segment"]["id"], segment_name: c["segment"]["name"]})
   
   c["segment"]["_embedded"]["genres"].each do |g|
-    genres.add({tm_genre_id: g["id"], genre_name: g["name"]})
+    genres.add({tm_genre_id: g["id"], genre_name: g["name"], segment_id: c["segment"]["id"]})
     
     g["_embedded"]["subgenres"].each do |s|
-      sub_genres.add({tm_sub_genre_id: s["id"], sub_genre_name: s["name"]})
+      sub_genres.add({tm_sub_genre_id: s["id"], sub_genre_name: s["name"], genre_id: g["id"]})
     end
   end
+end
+
+sub_genres.each do |sub_genre|
+  sg = SubGenre.find_by(tm_sub_genre_id: sub_genre[:tm_sub_genre_id]
+  sg.genre_id = Genre.find_by(tm_genre_id: sub_genre[:genre_id]).id 
+  sg.save
+end
+
+genres.each do |genre|
+  g = Genre.find_by(tm_genre_id: genre[:tm_genre_id])
+  g.segment_id = Segment.find_by(tm_segment_id: genre[:segment_id]).id 
+  g.save
 end
 
 segments.each do |segment|
