@@ -76,7 +76,7 @@ class UserInterface
             user.display_all_user_events
             events(user)
         elsif choice == 2
-            event_search(user)
+            search_choice(user)
         elsif choice == 3
             remove_event(user)
         else
@@ -183,11 +183,49 @@ class UserInterface
         account(user)
     end
 
+    def search_choice(user)
+        options = ["Search by Event Name", "Search by Event Type", "Event Home"]
+        choice = selection(options)
+        if choice == 0
+            event_search(user)
+        elsif choice == 1
+            event_type_search(user)
+        else
+            events(user)
+        end
+    end
+
+    def self.event_type_search(user)
+        segments = Segment.all
+        options = segments.map {|segment| segment.segment_name}
+        choice = selection(options)
+        genres = segments[choice].genres
+        options = genres.map {|genre| genre.genre_name}
+        choice = selection(options)
+        sub_genres = genres[choice].sub_genres
+        options = sub_genres.map {|sg| sg.sub_genre_name}
+        choice = selection(options)
+        puts "Please enter search criteria. Leave blank to exclude from search."
+        search_info = @@prompt.collect do
+            key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
+            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
+            key(:city).ask('Please enter the city to search:')
+            key(:countryCode).ask('Please enter the country to search:', value: "GB")
+        end
+        search_info = search_info.select{|key,value| !!value}
+        search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
+        search_string = search_string.join("")
+
+        select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, 0)), user)
+
+
+    end
+
     def self.event_search(user)
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
             key(:keyword).ask('Please enter the name of the event:')
-            key(:startDateTime).ask('Please enter the date range to search: \n Start date:', value: Date.today.strftime("%F"))<<"T00:00:00Z"
+            key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
             key(:city).ask('Please enter the city to search:')
             key(:countryCode).ask('Please enter the country to search:', value: "GB")
