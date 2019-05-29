@@ -53,6 +53,7 @@ class UserInterface
     end
 
     def self.home_page(user)
+        puts "Welcome #{user.first_name}! \n"
         options = ["Events", "My Reviews", "My Account", "Logout"]
         choice = selection(options)
         if choice == 0
@@ -91,21 +92,25 @@ class UserInterface
             user.display_all_user_reviews
             reviews(user)
         elsif choice == 1
-            if user.select_user_events_to_review[1].length == 0
-                puts "You have reviewed all your events"
-            else options = user.select_user_events_to_review[1]
-            event_ids = user.select_user_events_to_review[0]
-            selection = @@prompt.select("Please choose an event to review:", options)
-            choice = options.index(selection)
-            create_review(user, event_ids[choice])
-            user = User.find(user.id)
-            end
+            new_review(user)
             reviews(user)
         elsif choice == 2
             select_review_to_edit(user)
             reviews(user)
         else
             home_page(user)
+        end
+    end
+
+    def self.new_review(user)
+        if user.select_user_events_to_review[1].length == 0
+            puts "You have reviewed all your events"
+        else options = user.select_user_events_to_review[1]
+        event_ids = user.select_user_events_to_review[0]
+        selection = @@prompt.select("Please choose an event to review:", options)
+        choice = options.index(selection)
+        create_review(user, event_ids[choice])
+        user = User.find(user.id)
         end
     end
 
@@ -221,12 +226,14 @@ class UserInterface
 
     end
 
+
+
     def self.event_search(user)
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
             key(:keyword).ask('Please enter the name of the event:')
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
-            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
+            key(:endDateTime).ask(' End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
             key(:city).ask('Please enter the city to search:')
             key(:countryCode).ask('Please enter the country to search:', value: "GB")
         end
@@ -243,16 +250,9 @@ class UserInterface
             puts "Your search returned no events"
             events(user)
         else 
-            options = (events.map.with_index(1) do |event, i| 
-                "Event #{i+(page_no*events.length)}: #{event[2][:event_name]}\n" << 
-                "Event name: #{event[0][:event_date_name]}\n" <<
-                "When: #{event[0][:start_date]} at #{event[0][:start_time]}\n" <<
-                "Where: #{event[1][:venue_name]}, #{event[1][:city]}, #{event[1][:postcode]}\n" <<
-                "--------------------------"
-            end << (!next_url ? "Back" : ["Load More", "Back"])).flatten
+            options = make_event_options(events, page_no, next_url)
             selection = @@prompt.select("Please choose an event to add:", options)
-            choice = options.index(selection)
-            
+            choice = options.index(selection)      
             if choice < events.length
                 user.add_event_from_json(events[choice])
                 user = User.find(user.id)
@@ -266,6 +266,17 @@ class UserInterface
             end
         end
     
+    end
+
+    def self.make_event_options(events, page_no, next_url)
+        options = (events.map.with_index(1) do |event, i| 
+            "Event #{i+(page_no*events.length)}: #{event[2][:event_name]}\n" << 
+            "Event name: #{event[0][:event_date_name]}\n" <<
+            "When: #{event[0][:start_date]} at #{event[0][:start_time]}\n" <<
+            "Where: #{event[1][:venue_name]}, #{event[1][:city]}, #{event[1][:postcode]}\n" <<
+            "--------------------------"
+        end << (!next_url ? "Back" : ["Load More", "Back"])).flatten
+        options
     end
 
     def self.remove_event(user)
