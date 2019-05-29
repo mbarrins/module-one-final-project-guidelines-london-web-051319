@@ -5,15 +5,22 @@ class UserInterface
     @@prompt = TTY::Prompt.new
 
     def self.first_page
-        options = ["Login", "Create Account", "Exit"]
-        choice = selection(options)
-        if choice == 0
-            login
-        elsif choice == 1
-            create_account
-        elsif choice == 2
-            puts "Goodbye"
-        end
+        #options = ["Login", "Create Account", "Exit"]
+        options = {
+            "Login" => lambda{login}, 
+            "Create Account" => lambda{create_account}, 
+            "Exit" => lambda{puts "Goodbye"}
+        }
+        #choice = selection(options)
+        call_selection(options)
+        
+        # if choice == 0
+        #     login
+        # elsif choice == 1
+        #     create_account
+        # elsif choice == 2
+        #     puts "Goodbye"
+        # end
     end
 
     def self.login
@@ -40,7 +47,7 @@ class UserInterface
                 key(:password).mask('Please enter a password:', required: true)
                 key(:first_name).ask('Please enter your first name:')
                 key(:last_name).ask('Please enter your last name:')
-                key(:email).ask('Please enter your email:')
+                key(:email).ask('Please enter your email:'){|q| q.validate(:email, 'Please enter a valid email address.')}
                 key(:city).ask('(Optional) Please enter your home city:')
                 key(:country).ask('(Optional) Please enter your home country:')
             end
@@ -53,44 +60,57 @@ class UserInterface
     end
 
     def self.home_page(user)
-        options = ["Events", "My Reviews", "My Account", "Logout"]
-        choice = selection(options)
-        if choice == 0
-            events(user)
-        elsif choice == 1
-            reviews(user)
-        elsif choice == 2
-            account(user)
-        else
-            first_page
-        end
+        #options = ["Events", "My Reviews", "My Account", "Logout"]
+        options = {
+            "Events" => lambda{events(user)}, 
+            "My Reviews" => lambda{reviews(user)}, 
+            "My Account" => lambda{account(user)}, 
+            "Logout" => lambda{first_page}
+        }
+        #choice = selection(options)
+        call_selection(options)
+        
+        # if choice == 0
+        #     events(user)
+        # elsif choice == 1
+        #     reviews(user)
+        # elsif choice == 2
+        #     account(user)
+        # else
+        #     first_page
+        # end
     end
 
     def self.events(user)
-        options = ["My Upcoming Events", "All My Events", "Add New Event", "Remove Event", "Home Page"]
-        choice = selection(options)
-        if choice == 0
-            user.display_future_user_events
-            events(user)
-        elsif choice == 1
-            user.display_all_user_events
-            events(user)
-        elsif choice == 2
-            search_choice(user)
-        elsif choice == 3
-            remove_event(user)
-        else
-            home_page(user)
-        end
+        #options = ["My Upcoming Events", "All My Events", "Add New Event", "Remove Event", "Home Page"]
+        options = {
+            "My Upcoming Events" => lambda{user.display_future_user_events; events(user)}, 
+            "All My Events" => lambda{user.display_all_user_events; events(user)}, 
+            "Add New Event" => lambda{search_choice(user)}, 
+            "Remove Event" => lambda{remove_event(user)}, 
+            "Home Page" => lambda{home_page(user)}
+        }
+        #choice = selection(options)
+        call_selection(options)
+        
+        # if choice == 0
+        #     user.display_future_user_events
+        #     events(user)
+        # elsif choice == 1
+        #     user.display_all_user_events
+        #     events(user)
+        # elsif choice == 2
+        #     search_choice(user)
+        # elsif choice == 3
+        #     remove_event(user)
+        # else
+        #     home_page(user)
+        # end
     end
 
     def self.reviews(user)
-        options = ["All My Reviews", "New Review", "Edit Review", "Home Page"]
-        choice = selection(options)
-        if choice == 0
-            user.display_all_user_reviews
-            reviews(user)
-        elsif choice == 1
+        #options = ["All My Reviews", "New Review", "Edit Review", "Home Page"]
+        new_review = lambda do
             if user.select_user_events_to_review[1].length == 0
                 puts "You have reviewed all your events"
             else options = user.select_user_events_to_review[1]
@@ -101,12 +121,37 @@ class UserInterface
             user = User.find(user.id)
             end
             reviews(user)
-        elsif choice == 2
-            select_review_to_edit(user)
-            reviews(user)
-        else
-            home_page(user)
         end
+
+        options = {
+            "All My Reviews" => lambda{user.display_all_user_reviews; reviews(user)}, 
+            "New Review" => new_review, 
+            "Edit Review" => lambda{select_review_to_edit(user); reviews(user)}, 
+            "Home Page" => lambda{home_page(user)}
+        }
+        #choice = selection(options)
+        call_selection(options)
+        
+        # if choice == 0
+        #     user.display_all_user_reviews
+        #     reviews(user)
+        # elsif choice == 1
+        #     if user.select_user_events_to_review[1].length == 0
+        #         puts "You have reviewed all your events"
+        #     else options = user.select_user_events_to_review[1]
+        #     event_ids = user.select_user_events_to_review[0]
+        #     selection = @@prompt.select("Please choose an event to review:", options)
+        #     choice = options.index(selection)
+        #     create_review(user, event_ids[choice])
+        #     user = User.find(user.id)
+        #     end
+        #     reviews(user)
+        # elsif choice == 2
+        #     select_review_to_edit(user)
+        #     reviews(user)
+        # else
+        #     home_page(user)
+        # end
     end
 
     def self.create_review(user, event_id)
@@ -126,6 +171,12 @@ class UserInterface
     def self.selection(options)
         selection = @@prompt.select("Please choose an option:", options)
         options.index(selection)
+    end
+
+    def self.call_selection(options)
+        selection = @@prompt.select("Please choose an option:", options.keys)
+        options[selection].call
+
     end
 
     def self.select_review_to_edit(user)
@@ -155,44 +206,70 @@ class UserInterface
     end
 
     def self.account(user)
-        options = ["Change Username", "Change Name", "Change Email Address", "Change City", "Change Country", "Delete Account", "Home"]
-        choice = selection(options)
-        if choice == 0
-            new_username = @@prompt.ask('Please choose a new username:')
-            user.change_username(new_username)
-        elsif choice == 1
+        #options = ["Change Username", "Change Name", "Change Email Address", "Change City", "Change Country", "Delete Account", "Home"]
+        change_name = lambda do
             name = @@prompt.collect do
                 key(:first_name).ask('Please enter your new first name:')
                 key(:last_name).ask('Please enter your new last name:')
             user.change_name(name)
             end
-        elsif choice == 2
-            new_email = @@prompt.ask('Please choose a new email address')
-            user.change_email(new_email)
-        elsif choice == 3
-            new_city = @@prompt.ask('Please choose a new city')
-            user.change_city(new_city)
-        elsif choice == 4
-            new_country = @@prompt.ask('Please choose a new country')
-            user.change_country(new_country)
-        elsif choice == 5
-            user.delete_account
-        else
-            self.home_page(user)
         end
+
+        options = {
+            "Change Username" => lambda{new_username = @@prompt.ask('Please choose a new username:'); user.change_username(new_username)}, 
+            "Change Name" => change_name, 
+            "Change Email Address" => lambda{new_email = @@prompt.ask('Please choose a new email address'); user.change_email(new_email)}, 
+            "Change City" => lambda{new_city = @@prompt.ask('Please choose a new city'); user.change_city(new_city)}, 
+            "Change Country" => lambda{new_country = @@prompt.ask('Please choose a new country'); user.change_country(new_country)}, 
+            "Delete Account" => lambda{user.delete_account}, 
+            "Home" => lambda{home_page(user)}
+        }
+        #choice = selection(options)
+        call_selection(options)
+        
+        # if choice == 0
+        #     new_username = @@prompt.ask('Please choose a new username:')
+        #     user.change_username(new_username)
+        # elsif choice == 1
+        #     name = @@prompt.collect do
+        #         key(:first_name).ask('Please enter your new first name:')
+        #         key(:last_name).ask('Please enter your new last name:')
+        #     user.change_name(name)
+        #     end
+        # elsif choice == 2
+        #     new_email = @@prompt.ask('Please choose a new email address')
+        #     user.change_email(new_email)
+        # elsif choice == 3
+        #     new_city = @@prompt.ask('Please choose a new city')
+        #     user.change_city(new_city)
+        # elsif choice == 4
+        #     new_country = @@prompt.ask('Please choose a new country')
+        #     user.change_country(new_country)
+        # elsif choice == 5
+        #     user.delete_account
+        # else
+        #     self.home_page(user)
+        # end
         account(user)
     end
 
     def self.search_choice(user)
-        options = ["Search by Event Name", "Search by Event Type", "Event Home"]
-        choice = selection(options)
-        if choice == 0
-            event_search(user)
-        elsif choice == 1
-            event_type_search(user)
-        else
-            events(user)
-        end
+        #options = ["Search by Event Name", "Search by Event Type", "Event Home"]
+        options = {
+            "Search by Event Name" => lambda{event_search(user)}, 
+            "Search by Event Type" => lambda{event_type_search(user)}, 
+            "Event Home" => lambda{events(user)}
+        }
+        #choice = selection(options)
+        call_selection(options)
+        
+        # if choice == 0
+        #     event_search(user)
+        # elsif choice == 1
+        #     event_type_search(user)
+        # else
+        #     events(user)
+        # end
     end
 
     def self.event_type_search(user)
