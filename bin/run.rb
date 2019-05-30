@@ -10,7 +10,6 @@ CLASSURL = "https://app.ticketmaster.com/discovery/v2/events?"
 
 session = UserInterface.new
 session.first_page
-#UserInterface.first_page
 
 binding.pry
 puts "HELLO WORLD"
