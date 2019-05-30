@@ -1,0 +1,5 @@
+class ClassificationApiData < ApiData
+
+
+
+end
