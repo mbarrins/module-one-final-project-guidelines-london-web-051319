@@ -73,6 +73,7 @@ class UserInterface
             "All My Reviews" => lambda{user.display_all_user_reviews; reviews(user)}, 
             "New Review" => lambda{new_review(user)}, 
             "Edit Review" => lambda{select_review_to_edit(user)}, 
+            "Delete Review" => lambda{select_review_to_delete(user)}, 
             "Home Page" => lambda{home_page(user)}
         }
         
@@ -110,11 +111,29 @@ class UserInterface
         if user.reviews.length == 0
             puts "You have reviewed all your events"
         else reviews = user.reviews
-        options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"}
+        options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
         selection = @@prompt.select("Please choose a review to edit:", options)
-        choice = options.index(selection)
-        edit_review(reviews[choice])
-        user.reload
+        if selection != "Cancel"
+            choice = options.index(selection)
+            edit_review(reviews[choice])
+            user.reload
+        end
+        reviews(user)
+        end
+    
+    end
+
+    def self.select_review_to_delete(user)
+        if user.reviews.length == 0
+            puts "You have no reviews"
+        else reviews = user.reviews
+        options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
+        selection = @@prompt.select("Please choose a review to delete:", options)
+        if selection != "Cancel"
+            choice = options.index(selection)
+            reviews[choice].destroy
+            user.reload
+        end
         reviews(user)
         end
     
@@ -185,13 +204,16 @@ class UserInterface
     def self.remove_event(user)
         if user.user_events.length == 0
             puts "You have no events"
-        else events = user.user_events
-        options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"}
-        selection = @@prompt.select("Please choose an event to delete:", options)
-        choice = options.index(selection)
-        events[choice].destroy
-        user = User.find(user.id)
-        puts "Event successfully removed!"
+        else 
+            events = user.user_events
+            options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"} << "Cancel"
+            selection = @@prompt.select("Please choose an event to delete:", options)
+            if selection != "Cancel"
+                choice = options.index(selection)
+                events[choice].destroy
+                user = User.find(user.id)
+                puts "Event successfully removed!"
+            end
         end
         events(user)
     end
