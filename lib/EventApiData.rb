@@ -1,5 +1,5 @@
 class EventApiData < ApiData
-  attr_accessor :search_string, :page_no, :next_url
+  attr_accessor :search_string, :page_no, :page_size, :next_url
 
   def initialize(url:, search_string: nil, api_key: nil, page_no: 0, page_size: 10)
     super
@@ -8,17 +8,23 @@ class EventApiData < ApiData
     @page_size = page_size
   end
 
-  def get_data
-    @data = JSON.parse(RestClient.get(self.url << self.search_string << "&page=#{self.page_no}&size=#{self.page_size}"))
-    @next_url = (self.data["page"]["totalElements"] == 0 ? next_url = nil : events_json["_links"]["next"])
+  def self.new_with_data(url:, search_string:, api_key:, page_no: 0, page_size: 10)
+    event = EventApiData.new(url: url, search_string: search_string, api_key: api_key, page_no: page_no, page_size: page_size)
+    event.get_data
+    event
   end
 
-  def new_event_search
+  def get_data
+    @data = JSON.parse(RestClient.get(self.url + "apikey=#{self.api_key}" + self.search_string + "&page=#{self.page_no}&size=#{self.page_size}"))
+    @next_url = (self.data["page"]["totalElements"] == 0 ? next_url = nil : self.data["_links"]["next"])
+  end
+
+  def search_results
     if !self.data || self.data["page"]["totalElements"] == 0
-        events = [[]]
+        events = []
         # next_url = nil
     else
-        events = events_json["_embedded"]["events"]
+        events = self.data["_embedded"]["events"]
         # next_url = events_json["_links"]["next"]
 
         events = events.map do |event_date|

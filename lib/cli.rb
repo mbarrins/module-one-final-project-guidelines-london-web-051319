@@ -77,6 +77,7 @@ class UserInterface
         }
         
         call_selection(options)
+        reviews(user)
     end
 
     def self.new_review(user)
@@ -143,17 +144,16 @@ class UserInterface
         end
 
         options = {
-            "Change Username" => lambda{new_username = @@prompt.ask('Please choose a new username:'); user.change_username(new_username)}, 
-            "Change Name" => change_name, 
-            "Change Email Address" => lambda{new_email = @@prompt.ask('Please choose a new email address'); user.change_email(new_email)}, 
-            "Change City" => lambda{new_city = @@prompt.ask('Please choose a new city'); user.change_city(new_city)}, 
-            "Change Country" => lambda{new_country = @@prompt.ask('Please choose a new country'); user.change_country(new_country)}, 
-            "Delete Account" => lambda{user.delete_account}, 
+            "Change Username" => lambda{new_username = @@prompt.ask('Please choose a new username:'); user.change_username(new_username); account(user)}, 
+            "Change Name" => lambda{change_name; account(user)}, 
+            "Change Email Address" => lambda{new_email = @@prompt.ask('Please choose a new email address'); user.change_email(new_email); account(user)}, 
+            "Change City" => lambda{new_city = @@prompt.ask('Please choose a new city'); user.change_city(new_city); account(user)}, 
+            "Change Country" => lambda{new_country = @@prompt.ask('Please choose a new country'); user.change_country(new_country); account(user)}, 
+            "Delete Account" => lambda{user.delete_account; first_page}, 
             "Home" => lambda{home_page(user)}
         }
         
         call_selection(options)
-        account(user)
     end
 
     # events
@@ -218,9 +218,9 @@ class UserInterface
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
         search_string = search_string.join("")
 
-        events_data = EventApiData.new(url: EVENTSURL, api_key: APIKEY, search_string: search_string).get_data
+        events_data = EventApiData.new_with_data(url: EVENTSURL, api_key: APIKEY, search_string: search_string)
 
-        select_event_to_create(events_data.data, user)
+        select_event_to_create(events_data, user)
         
     end
 
@@ -238,28 +238,31 @@ class UserInterface
         
         search_info = search_info.select{|key,value| !!value}
         search_string = search_info.map {|key,search| "&#{key}=#{search}"}.join("")
+        events_data = EventApiData.new_with_data(url: EVENTSURL, api_key: APIKEY, search_string: search_string)
 
-        select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, 0)), user)
+        select_event_to_create(events_data, user)
 
     end
 
-    def self.select_event_to_create(events, search_string, page_no, next_url, user)
-        if events.length == 0
+    def self.select_event_to_create(events_data, user)
+        events_details = events_data.search_results
+        if events_details.length == 0
             puts "Your search returned no events"
             events(user)
         else 
-            options = make_event_options(events, page_no, next_url)
+            options = make_event_options(events_data)#, page_no, next_url)
             selection = @@prompt.select("Please choose an event to add:", options)
-            choice = options.index(selection)   
-            if choice < events.length
-                event_id = events[choice].id
-                events_menu(event_id, events, user)
+            choice = options.index(selection)
+            if choice < events_details.length
+                tm_event_id = events_details[choice][2][:tm_event_id]
+                event_id = Event.find_by(tm_event_id: tm_event_id)
+                events_menu(event_id, events_details, user, choice)
                 # user.add_event_from_json(events[choice])
                 # user = User.find(user.id)
                 # events(user)
             elsif choice == options.index("Load More")
-                page_no += 1
-                select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, page_no)), user)
+                events_details.page_no += 1
+                select_event_to_create(events_data, user)
             else
                 events(user)
             end
@@ -267,26 +270,27 @@ class UserInterface
     
     end
 
-    def events_menu(event_id, events, user)
-            "View Reviews" => lambda{view_reviews(event_id)}, 
+    def self.events_menu(event_id, events, user, choice)
+        options = {"View Reviews" => lambda{view_reviews(event_id)}, 
             "Add to my events" => lambda{user.add_event_from_json(events[choice])}, 
-            "Back to Search" => lambda{events(user)}
+            "Back to Search" => lambda{events(user)}}
+        call_selection(options)
     end
 
-    def view_reviews(event_id)
+    def self.view_reviews(event_id)
         Review.find_by(event_id: event_id)
 
     
     end
 
-    def self.make_event_options(events, page_no, next_url)
-        options = (events.map.with_index(1) do |event, i| 
-            "Event #{i+(page_no*events.length)}: #{event[2][:event_name]}\n" << 
+    def self.make_event_options(events_data)
+        options = (events_data.search_results.map.with_index(1) do |event, i| 
+            "Event #{i+(events_data.page_no*events_data.search_results.length)}: #{event[2][:event_name]}\n" << 
             "Event name: #{event[0][:event_date_name]}\n" <<
             "When: #{event[0][:start_date]} at #{event[0][:start_time]}\n" <<
             "Where: #{event[1][:venue_name]}, #{event[1][:city]}, #{event[1][:postcode]}\n" <<
             "--------------------------"
-        end << (!next_url ? "Back" : ["Load More", "Back"])).flatten
+        end << (!events_data.next_url ? "Back" : ["Load More", "Back"])).flatten
         options
     end
 
