@@ -72,12 +72,11 @@ class UserInterface
         options = {
             "All My Reviews" => lambda{user.display_all_user_reviews; reviews(user)}, 
             "New Review" => lambda{new_review(user)}, 
-            "Edit Review" => lambda{select_review_to_edit(user); reviews(user)}, 
+            "Edit Review" => lambda{select_review_to_edit(user)}, 
             "Home Page" => lambda{home_page(user)}
         }
         
         call_selection(options)
-        reviews(user)
     end
 
     def self.new_review(user)
@@ -88,7 +87,8 @@ class UserInterface
         selection = @@prompt.select("Please choose an event to review:", options)
         choice = options.index(selection)
         create_review(user, event_ids[choice])
-        user = User.find(user.id)
+        user.reload
+        reviews(user)
         end
     end
 
@@ -114,7 +114,8 @@ class UserInterface
         selection = @@prompt.select("Please choose a review to edit:", options)
         choice = options.index(selection)
         edit_review(reviews[choice])
-        user = User.find(user.id)
+        user.reload
+        reviews(user)
         end
     
     end
@@ -250,16 +251,13 @@ class UserInterface
             puts "Your search returned no events"
             events(user)
         else 
-            options = make_event_options(events_data)#, page_no, next_url)
+            options = make_event_options(events_data)
             selection = @@prompt.select("Please choose an event to add:", options)
             choice = options.index(selection)
             if choice < events_details.length
                 tm_event_id = events_details[choice][2][:tm_event_id]
                 event_id = Event.find_by(tm_event_id: tm_event_id)
                 events_menu(event_id, events_details, user, choice)
-                # user.add_event_from_json(events[choice])
-                # user = User.find(user.id)
-                # events(user)
             elsif choice == options.index("Load More")
                 events_details.page_no += 1
                 select_event_to_create(events_data, user)

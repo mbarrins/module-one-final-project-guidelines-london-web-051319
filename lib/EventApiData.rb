@@ -22,10 +22,8 @@ class EventApiData < ApiData
   def search_results
     if !self.data || self.data["page"]["totalElements"] == 0
         events = []
-        # next_url = nil
     else
         events = self.data["_embedded"]["events"]
-        # next_url = events_json["_links"]["next"]
 
         events = events.map do |event_date|
             [{
@@ -53,7 +51,7 @@ class EventApiData < ApiData
             }]
         end
     end
-    events #<< search_string << page_no << next_url
+    events
 end
 
 end
