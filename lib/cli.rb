@@ -44,7 +44,7 @@ class UserInterface
                 key(:last_name).ask('Please enter your last name:')
                 key(:email).ask('Please enter your email:'){|q| q.validate(:email, 'Please enter a valid email address.')}
                 key(:city).ask('(Optional) Please enter your home city:')
-                key(:country).ask('(Optional) Please enter your home country:')
+                key(:country).ask('(Optional) Please enter your home country:', value: "GB")
             end
             user_info[:username] = username
             @user = User.create(user_info)
@@ -164,20 +164,13 @@ class UserInterface
     # my account
 
     def account
+        user_prompt = self.user
         options = {
-            "Change Username" => lambda{new_username = @@prompt.ask('Please choose a new username:'); user.change_username(new_username); account}, 
-            "Change Name" => lambda do
-                name = @@prompt.collect do
-                    key(:first_name).ask('Please enter your new first name:')
-                    key(:last_name).ask('Please enter your new last name:')
-                end
-                user.change_name(name)
-                user.reload
-                account
-                end, 
-            "Change Email Address" => lambda{new_email = @@prompt.ask('Please choose a new email address'); user.change_email(new_email); account}, 
-            "Change City" => lambda{new_city = @@prompt.ask('Please choose a new city'); user.change_city(new_city); account}, 
-            "Change Country" => lambda{new_country = @@prompt.ask('Please choose a new country'); user.change_country(new_country); account}, 
+            "Change Username" => lambda{new_username = @@prompt.ask('Please choose a new username:', value: user.username); user.change_username(new_username); account}, 
+            "Change Name" => lambda{change_name_prompt; self.user.reload; account}, 
+            "Change Email Address" => lambda{new_email = @@prompt.ask('Please choose a new email address', value: user_prompt.email); user.change_email(new_email); user.reload; account}, 
+            "Change City" => lambda{new_city = @@prompt.ask('Please choose a new city', value: user_prompt.city || ""); user.change_city(new_city); user.reload; account}, 
+            "Change Country" => lambda{new_country = @@prompt.ask('Please choose a new country', value: user_prompt.country || ""); user.change_country(new_country); user.reload; account}, 
             "Delete Account" => lambda{user.delete_account; first_page}, 
             "Home" => lambda{home_page}
         }
@@ -230,6 +223,7 @@ class UserInterface
     # search functionality
 
     def event_type_search
+        user = self.user
         segments = Segment.all
         options = segments.map {|segment| segment.segment_name}
         choice = selection(options)
@@ -243,8 +237,8 @@ class UserInterface
         search_info = @@prompt.collect do
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
-            key(:city).ask('Please enter the city to search:')
-            key(:countryCode).ask('Please enter the country to search:', value: "GB")
+            key(:city).ask('Please enter the city to search:', value: user.city)
+            key(:countryCode).ask('Please enter the country to search:', value: user.country)
         end
         search_info = search_info.select{|key,value| !!value}
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
@@ -259,13 +253,14 @@ class UserInterface
 
 
     def event_search
+        user = self.user
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
             key(:keyword).ask('Please enter the name of the event:')
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask(' End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
-            key(:city).ask('Please enter the city to search:')
-            key(:countryCode).ask('Please enter the country to search:', value: "GB")
+            key(:city).ask('Please enter the city to search:', value: @user.city)
+            key(:countryCode).ask('Please enter the country to search:', value: @user.country)
         end
         
         search_info = search_info.select{|key,value| !!value}
@@ -334,5 +329,14 @@ class UserInterface
     def call_selection(options)
         selection = @@prompt.select("Please choose an option:", options.keys)
         options[selection].call
+    end
+
+    def change_name_prompt
+        user_prompt = self.user
+        name = @@prompt.collect do
+            key(:first_name).ask('Please enter your new first name:', value: user_prompt.first_name)
+            key(:last_name).ask('Please enter your new last name:', value: user_prompt.last_name)
+        end
+        user.change_name(name)
     end
 end

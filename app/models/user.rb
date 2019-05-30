@@ -99,7 +99,7 @@ class User < ActiveRecord::Base
     end
 
     def change_name(new_name)
-        self.update(first_name: first_name, last_name: last_name)
+        self.update(new_name)
         puts "Successfully updated!"
     end
 
