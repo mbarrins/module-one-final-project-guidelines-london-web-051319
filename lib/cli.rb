@@ -218,9 +218,10 @@ class UserInterface
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
         search_string = search_string.join("")
 
-        select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, 0)), user)
+        events_data = EventApiData.new(url: EVENTSURL, api_key: APIKEY, search_string: search_string).get_data
 
-
+        select_event_to_create(events_data.data, user)
+        
     end
 
 
