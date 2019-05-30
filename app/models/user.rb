@@ -114,7 +114,7 @@ class User < ActiveRecord::Base
     end
 
     def delete_account
-        User.destroy(self)
+        User.destroy(self.id)
         puts "--------------------------"
         puts "    Account deleted :("
         puts "--------------------------"
