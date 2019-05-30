@@ -61,7 +61,7 @@ class UserInterface
             puts "Welcome #{user.first_name}! \n"
             options = {
                 "Events" => lambda{events_menu}, 
-                "My Reviews" => lambda{reviews}, 
+                "My Reviews" => lambda{reviews_menu}, 
                 "My Account" => lambda{account}, 
                 "Logout" => lambda{first_page}
             }
@@ -74,9 +74,9 @@ class UserInterface
 
     # reviews
 
-    def reviews
+    def reviews_menu
         options = {
-            "All My Reviews" => lambda{user.display_all_user_reviews; reviews}, 
+            "All My Reviews" => lambda{user.display_all_user_reviews; reviews_menu}, 
             "New Review" => lambda{new_review}, 
             "Edit Review" => lambda{select_review_to_edit}, 
             "Delete Review" => lambda{select_review_to_delete}, 
@@ -97,7 +97,7 @@ class UserInterface
             create_review(event_ids[choice])
             user.reload
         end
-        reviews
+        reviews_menu
     end
 
     def create_review(event_id)
@@ -117,33 +117,35 @@ class UserInterface
     def select_review_to_edit
         if user.reviews.length == 0
             puts "You have reviewed all your events"
-        else reviews = user.reviews
-        options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
-        selection = @@prompt.select("Please choose a review to edit:", options)
-        if selection != "Cancel"
-            choice = options.index(selection)
-            edit_review(reviews[choice])
-            user.reload
+        else 
+            reviews = user.reviews
+            options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
+            selection = @@prompt.select("Please choose a review to edit:", options)
+            if selection != "Cancel"
+                choice = options.index(selection)
+                edit_review(reviews[choice])
+                user.reload
+            end
         end
-        reviews
-        end
-    
+
+        reviews_menu
     end
 
     def select_review_to_delete
         if user.reviews.length == 0
             puts "You have no reviews"
-        else reviews = user.reviews
-        options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
-        selection = @@prompt.select("Please choose a review to delete:", options)
-        if selection != "Cancel"
-            choice = options.index(selection)
-            reviews[choice].destroy
-            user.reload
+        else 
+            reviews = user.reviews
+            options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
+            selection = @@prompt.select("Please choose a review to delete:", options)
+            if selection != "Cancel"
+                choice = options.index(selection)
+                reviews[choice].destroy
+                user.reload
+            end
         end
-        reviews
-        end
-    
+
+        reviews_menu
     end
 
     def edit_review(review_obj)
