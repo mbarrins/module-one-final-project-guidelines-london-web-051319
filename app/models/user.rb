@@ -76,8 +76,6 @@ class User < ActiveRecord::Base
             UserEvent.create(user_id: self.id, event_date_id: event_date.id)
         end
         self.reload
-        UserInterface.events(self)
-
     end
 
     def change_email(email)
