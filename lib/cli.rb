@@ -13,11 +13,13 @@ class UserInterface
             "Create Account" => lambda{create_account}, 
             "Exit" => lambda{puts "Goodbye"}
         }
-        
+
+        clear
         call_selection(options)
     end
 
     def login
+        clear
         user_info = @@prompt.collect do
             key(:username).ask('Username:') do |q| 
                 q.required true
@@ -30,18 +32,20 @@ class UserInterface
             @user = user_match
             home_page
         else puts "Username or password is incorrect"
+            @@prompt.keypress("Press any key to continue")
             first_page
         end
     end
 
     def create_account
+        clear
         username = @@prompt.ask('Please choose a username:', required: true).downcase
         user_match = User.find_by(username: username)
         if !user_match
             user_info = @@prompt.collect do
                 key(:password).mask('Please enter a password:', required: true)
-                key(:first_name).ask('Please enter your first name:')
-                key(:last_name).ask('Please enter your last name:')
+                key(:first_name).ask('Please enter your first name:', required: true)
+                key(:last_name).ask('Please enter your last name:', required: true)
                 key(:email).ask('Please enter your email:'){|q| q.validate(:email, 'Please enter a valid email address.')}
                 key(:city).ask('(Optional) Please enter your home city:')
                 key(:country).ask('(Optional) Please enter your home country:', value: "GB")
@@ -50,6 +54,7 @@ class UserInterface
             @user = User.create(user_info)
             home_page
         else puts "Sorry, that username is already taken"
+            @@prompt.keypress("Press any key to continue")
             create_account
         end
     end
@@ -57,6 +62,7 @@ class UserInterface
     # home page
 
     def home_page
+        clear
         if !!user
             puts "Welcome #{user.first_name}! \n"
             options = {
@@ -75,6 +81,7 @@ class UserInterface
     # reviews
 
     def reviews_menu
+        clear
         options = {
             "All My Reviews" => lambda{user.display_all_user_reviews; reviews_menu}, 
             "New Review" => lambda{new_review}, 
@@ -88,11 +95,12 @@ class UserInterface
 
     def new_review
         if user.select_user_events_to_review[1].length == 0
-            puts "You have reviewed all your events"
+            puts "You have no events to review"
+            @@prompt.keypress("Press any key to continue")
         else 
             options = user.select_user_events_to_review[1]
             event_ids = user.select_user_events_to_review[0]
-            selection = @@prompt.select("Please choose an event to review:", options)
+            selection = @@prompt.select("Please choose an event to review:", options, per_page: 15)
             choice = options.index(selection)
             create_review(event_ids[choice])
             user.reload
@@ -115,12 +123,14 @@ class UserInterface
     end
 
     def select_review_to_edit
+        clear
         if user.reviews.length == 0
-            puts "You have reviewed all your events"
+            puts "You have no events to edit"
+            @@prompt.keypress("Press any key to continue")
         else 
             reviews = user.reviews
             options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
-            selection = @@prompt.select("Please choose a review to edit:", options)
+            selection = @@prompt.select("Please choose a review to edit:", options, per_page: 15)
             if selection != "Cancel"
                 choice = options.index(selection)
                 edit_review(reviews[choice])
@@ -132,16 +142,19 @@ class UserInterface
     end
 
     def select_review_to_delete
+        clear
         if user.reviews.length == 0
             puts "You have no reviews"
+            @@prompt.keypress("Press any key to continue")
         else 
             reviews = user.reviews
             options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
-            selection = @@prompt.select("Please choose a review to delete:", options)
+            selection = @@prompt.select("Please choose a review to delete:", options, per_page: 15)
             if selection != "Cancel"
                 choice = options.index(selection)
                 reviews[choice].destroy
                 puts "Review successfully deleted!"
+                @@prompt.keypress("Press any key to continue")
                 user.reload
             end
         end
@@ -161,6 +174,7 @@ class UserInterface
         end
         review_obj.update(review_info)
         puts "Review successfully edited!"
+        @@prompt.keypress("Press any key to continue")
     end
 
     # my account
@@ -177,6 +191,7 @@ class UserInterface
             "Home" => lambda{home_page}
         }
 
+        clear
         call_selection(options)
     end
 
@@ -190,7 +205,8 @@ class UserInterface
             "Remove Event" => lambda{remove_event}, 
             "Home Page" => lambda{home_page}
         }
-        
+
+        clear
         call_selection(options)
     end
 
@@ -200,7 +216,8 @@ class UserInterface
             "Search by Event Type" => lambda{event_type_search}, 
             "Event Home" => lambda{events_menu}
         }
-    
+        
+        clear
         call_selection(options)
     end
 
@@ -208,15 +225,17 @@ class UserInterface
     def remove_event
         if user.user_events.length == 0
             puts "You have no events"
+            @@prompt.keypress("Press any key to continue")
         else 
             events = user.user_events
             options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"} << "Cancel"
-            selection = @@prompt.select("Please choose an event to delete:", options)
+            selection = @@prompt.select("Please choose an event to delete:", options, per_page: 15)
             if selection != "Cancel"
                 choice = options.index(selection)
                 events[choice].destroy
                 user.reload
                 puts "Event successfully removed!"
+                @@prompt.keypress("Press any key to continue")
             end
         end
         events_menu
@@ -225,6 +244,7 @@ class UserInterface
     # search functionality
 
     def event_type_search
+        clear
         user_prompt = self.user
         segments = Segment.all
         options = segments.map {|segment| segment.segment_name}
@@ -239,8 +259,8 @@ class UserInterface
         search_info = @@prompt.collect do
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
-            key(:city).ask('Please enter the city to search:', value: user_prompt.city)
-            key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country)
+            key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
+            key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
         search_info = search_info.select{|key,value| !!value}
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
@@ -255,14 +275,15 @@ class UserInterface
 
 
     def event_search
+        clear
         user_prompt = self.user
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
             key(:keyword).ask('Please enter the name of the event:')
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask(' End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
-            key(:city).ask('Please enter the city to search:', value: user_prompt.city)
-            key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country)
+            key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
+            key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
         
         search_info = search_info.select{|key,value| !!value}
@@ -274,20 +295,25 @@ class UserInterface
     end
 
     def select_event_to_create(events_data)
+        clear
         events_details = events_data.search_results
         if events_details.length == 0
             puts "Your search returned no events"
+            @@prompt.keypress("Press any key to continue")
             events_menu
-        else 
+        else    
             options = make_event_options(events_data)
-            selection = @@prompt.select("Please choose an event:", options)
+            selection = @@prompt.select("Please choose an event:", options, per_page: 15)
             choice = options.index(selection)
             if choice < events_details.length
                 tm_event_id = events_details[choice][2][:tm_event_id]
                 chosen_event = Event.find_by(tm_event_id: tm_event_id)
                 selected_events_menu(chosen_event, events_data, choice)
-            elsif choice == options.index("Load More")
-                events_details.page_no += 1
+            elsif choice == options.index("Next #{events_data.page_size} Events")
+                events_data.page_no += 1
+                select_event_to_create(events_data)
+            elsif choice == options.index("Prev #{events_data.page_size} Events")
+                events_data.page_no -= 1
                 select_event_to_create(events_data)
             else
                 events_menu
@@ -297,25 +323,46 @@ class UserInterface
     end
 
     def selected_events_menu(chosen_event, events_data, choice)
-        options = {"View Reviews" => lambda{view_reviews(chosen_event); select_event_to_create(events_data)}, 
-            "Add to my events" => lambda{user.add_event_from_json(events_data.search_results[choice]); events_menu}, 
-            "Back to Search" => lambda{events_menu}}
+        options = {
+            "View Reviews" => lambda{view_reviews(chosen_event); selected_events_menu(chosen_event, events_data, choice)}, 
+            "Add to my events" => lambda{user.add_event_from_json(events_data.search_results[choice]); select_event_to_create(events_data)}, 
+            "Back to Search" => lambda{events_menu}
+        }
+        
+        clear
         call_selection(options)
     end
 
     def view_reviews(event)
-        event.display_reviews
-        @@prompt.keypress("Press space or enter to return to search results", keys: [:space, :return])
+        if !!event
+            event.display_reviews
+            @@prompt.keypress("Press space or enter to return to search results", keys: [:space, :return])
+        else
+            puts "There are no reviews for this event"
+            @@prompt.keypress("Press any key to continue")
+        end
+
     end
 
     def make_event_options(events_data)
-        options = (events_data.search_results.map.with_index(1) do |event, i| 
+        options = events_data.search_results.map.with_index(1) do |event, i| 
             "Event #{i+(events_data.page_no*events_data.search_results.length)}: #{event[2][:event_name]}\n" << 
             "Event name: #{event[0][:event_date_name]}\n" <<
             "When: #{event[0][:start_date]} at #{event[0][:start_time]}\n" <<
             "Where: #{event[1][:venue_name]}, #{event[1][:city]}, #{event[1][:postcode]}\n" <<
             "--------------------------"
-        end << (!events_data.next_url ? "Back" : ["Load More", "Back"])).flatten
+        end
+
+        if !!events_data.next_url
+            options << "Next #{events_data.page_size} Events"
+        end
+
+        if events_data.page_no != 0
+            options << "Prev #{events_data.page_size} Events"
+        end
+
+        options << "Back to Events Menu"
+
         options
     end
 
@@ -324,21 +371,25 @@ class UserInterface
     private
 
     def selection(options)
-        selection = @@prompt.select("Please choose an option:", options)
+        selection = @@prompt.select("Please choose an option:", options, per_page: 20)
         options.index(selection)
     end
 
     def call_selection(options)
-        selection = @@prompt.select("Please choose an option:", options.keys)
+        selection = @@prompt.select("Please choose an option:", options.keys, per_page: 20)
         options[selection].call
     end
 
     def change_name_prompt
         user_prompt = self.user
         name = @@prompt.collect do
-            key(:first_name).ask('Please enter your new first name:', value: user_prompt.first_name)
-            key(:last_name).ask('Please enter your new last name:', value: user_prompt.last_name)
+            key(:first_name).ask('Please enter your new first name:', value: user_prompt.first_name, required: true)
+            key(:last_name).ask('Please enter your new last name:', value: user_prompt.last_name, required: true)
         end
         user.change_name(name)
+    end
+
+    def clear
+        print "\e[2J\e[f"
     end
 end

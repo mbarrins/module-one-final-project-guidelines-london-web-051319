@@ -1,8 +1,8 @@
 class User < ActiveRecord::Base
-    has_many :user_events
+    has_many :user_events, dependent: :destroy
     has_many :event_dates, through: :user_events
     has_many :events, through: :event_dates
-    has_many :reviews
+    has_many :reviews, dependent: :destroy
 
     @@prompt = TTY::Prompt.new
 
@@ -80,37 +80,45 @@ class User < ActiveRecord::Base
             event_date = EventDate.create(event_details[0])
             UserEvent.create(user_id: self.id, event_date_id: event_date.id)
         end
+        puts "Event Successfully added!"
+        @@prompt.keypress("Press any key to continue")
         self.reload
     end
 
     def change_email(email)
         self.update(email: email)
         puts "Successfully updated!"
+        @@prompt.keypress("Press any key to continue")
     end
 
     def change_username(username)
         username = username.downcase
         if !!User.find_by(username: username)
             puts "That username is already taken."
+            @@prompt.keypress("Press any key to continue")
         else
             self.update(username: username)
             puts "Successfully updated!"
+            @@prompt.keypress("Press any key to continue")
         end
     end
 
     def change_name(new_name)
         self.update(new_name)
         puts "Successfully updated!"
+        @@prompt.keypress("Press any key to continue")
     end
 
     def change_city(city)
         self.update(city: city)
         puts "Successfully updated!"
+        @@prompt.keypress("Press any key to continue")
     end
 
     def change_country(country)
         self.update(country: country)
         puts "Successfully updated!"
+        @@prompt.keypress("Press any key to continue")
     end
 
     def delete_account
@@ -118,6 +126,7 @@ class User < ActiveRecord::Base
         puts "--------------------------"
         puts "    Account deleted :("
         puts "--------------------------"
+        @@prompt.keypress("Press any key to continue")
     end
 
     private
@@ -125,27 +134,29 @@ class User < ActiveRecord::Base
     def display_user_event_details(user_events)
         if user_events.length == 0
             puts "You have no events"
+            @@prompt.keypress("Press any key to continue")
         else
-        user_events.each.with_index(1) do |user_event, i|
-            puts "Event #{i}: #{user_event.event_date.event.event_name}"
-            puts "Event name: #{user_event.event_date.event_date_name}"
-            puts "When: #{user_event.event_date.start_date} at #{user_event.event_date.start_time}"
-            puts "Where: #{user_event.event_date.venue.venue_name}, #{user_event.event_date.venue.city}, #{user_event.event_date.venue.postcode}"
-            puts "--------------------------"
+            user_events.each.with_index(1) do |user_event, i|
+                puts "Event #{i}: #{user_event.event_date.event.event_name}"
+                puts "Event name: #{user_event.event_date.event_date_name}"
+                puts "When: #{user_event.event_date.start_date} at #{user_event.event_date.start_time}"
+                puts "Where: #{user_event.event_date.venue.venue_name}, #{user_event.event_date.venue.city}, #{user_event.event_date.venue.postcode}"
+                puts "--------------------------"
+            end
         end
-    end
     end
 
     def display_user_review_details(reviews)
         if reviews.length == 0
             puts "You have no reviews"
+            @@prompt.keypress("Press any key to continue")
         else
-        reviews.each.with_index(1) do |review, i|
-            puts "Event #{i}: #{review.event.event_name}"
-            puts "Rating: #{review.rating}"
-            puts "Review: #{review.review}"
-            puts "--------------------------"
+            reviews.each.with_index(1) do |review, i|
+                puts "Event #{i}: #{review.event.event_name}"
+                puts "Rating: #{review.rating}"
+                puts "Review: #{review.review}"
+                puts "--------------------------"
+            end
         end
-    end
     end
 end
