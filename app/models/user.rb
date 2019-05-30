@@ -75,6 +75,8 @@ class User < ActiveRecord::Base
             event_date = EventDate.create(event_details[0])
             UserEvent.create(user_id: self.id, event_date_id: event_date.id)
         end
+        user = User.find(user.id)
+        events(user)
 
     end
 
@@ -109,7 +111,9 @@ class User < ActiveRecord::Base
 
     def delete_account
         Users.destroy(self)
-        puts "Account deleted :("
+        puts "--------------------------"
+        puts "    Account deleted :("
+        puts "--------------------------"
     end
 
     private
