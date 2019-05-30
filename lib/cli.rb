@@ -4,6 +4,8 @@ class UserInterface
 
     @@prompt = TTY::Prompt.new
 
+    # first page
+
     def self.first_page
         options = {
             "Login" => lambda{login}, 
@@ -50,6 +52,8 @@ class UserInterface
         end
     end
 
+    # home page
+
     def self.home_page(user)
         puts "Welcome #{user.first_name}! \n"
         options = {
@@ -62,17 +66,7 @@ class UserInterface
         call_selection(options)
     end
 
-    def self.events(user)
-        options = {
-            "My Upcoming Events" => lambda{user.display_future_user_events; events(user)}, 
-            "All My Events" => lambda{user.display_all_user_events; events(user)}, 
-            "Add New Event" => lambda{search_choice(user)}, 
-            "Remove Event" => lambda{remove_event(user)}, 
-            "Home Page" => lambda{home_page(user)}
-        }
-        
-        call_selection(options)
-    end
+    # reviews
 
     def self.reviews(user)
         options = {
@@ -137,6 +131,8 @@ class UserInterface
         review_obj.update(review_info)
     end
 
+    # my account
+
     def self.account(user)
         change_name = lambda do
             name = @@prompt.collect do
@@ -160,6 +156,20 @@ class UserInterface
         account(user)
     end
 
+    # events
+
+    def self.events(user)
+        options = {
+            "My Upcoming Events" => lambda{user.display_future_user_events; events(user)}, 
+            "All My Events" => lambda{user.display_all_user_events; events(user)}, 
+            "Add New Event" => lambda{search_choice(user)}, 
+            "Remove Event" => lambda{remove_event(user)}, 
+            "Home Page" => lambda{home_page(user)}
+        }
+        
+        call_selection(options)
+    end
+
     def self.search_choice(user)
         options = {
             "Search by Event Name" => lambda{event_search(user)}, 
@@ -169,6 +179,23 @@ class UserInterface
     
         call_selection(options)
     end
+
+
+    def self.remove_event(user)
+        if user.user_events.length == 0
+            puts "You have no events"
+        else events = user.user_events
+        options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"}
+        selection = @@prompt.select("Please choose an event to delete:", options)
+        choice = options.index(selection)
+        events[choice].destroy
+        user = User.find(user.id)
+        puts "Event successfully removed!"
+        end
+        events(user)
+    end
+    
+    # search functionality
 
     def self.event_type_search(user)
         segments = Segment.all
@@ -249,19 +276,7 @@ class UserInterface
         options
     end
 
-    def self.remove_event(user)
-        if user.user_events.length == 0
-            puts "You have no events"
-        else events = user.user_events
-        options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"}
-        selection = @@prompt.select("Please choose an event to delete:", options)
-        choice = options.index(selection)
-        events[choice].destroy
-        user = User.find(user.id)
-        puts "Event successfully removed!"
-        end
-        events(user)
-    end
+   
 
     private
 
