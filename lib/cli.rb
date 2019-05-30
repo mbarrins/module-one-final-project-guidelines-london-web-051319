@@ -225,7 +225,7 @@ class UserInterface
     # search functionality
 
     def event_type_search
-        user = self.user
+        user_prompt = self.user
         segments = Segment.all
         options = segments.map {|segment| segment.segment_name}
         choice = selection(options)
@@ -239,8 +239,8 @@ class UserInterface
         search_info = @@prompt.collect do
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
-            key(:city).ask('Please enter the city to search:', value: user.city)
-            key(:countryCode).ask('Please enter the country to search:', value: user.country)
+            key(:city).ask('Please enter the city to search:', value: user_prompt.city)
+            key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country)
         end
         search_info = search_info.select{|key,value| !!value}
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
@@ -255,14 +255,14 @@ class UserInterface
 
 
     def event_search
-        user = self.user
+        user_prompt = self.user
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
             key(:keyword).ask('Please enter the name of the event:')
             key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
             key(:endDateTime).ask(' End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
-            key(:city).ask('Please enter the city to search:', value: @user.city)
-            key(:countryCode).ask('Please enter the country to search:', value: @user.country)
+            key(:city).ask('Please enter the city to search:', value: user_prompt.city)
+            key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country)
         end
         
         search_info = search_info.select{|key,value| !!value}
