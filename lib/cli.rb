@@ -89,14 +89,15 @@ class UserInterface
     def new_review
         if user.select_user_events_to_review[1].length == 0
             puts "You have reviewed all your events"
-        else options = user.select_user_events_to_review[1]
-        event_ids = user.select_user_events_to_review[0]
-        selection = @@prompt.select("Please choose an event to review:", options)
-        choice = options.index(selection)
-        create_review(event_ids[choice])
-        user.reload
-        reviews
+        else 
+            options = user.select_user_events_to_review[1]
+            event_ids = user.select_user_events_to_review[0]
+            selection = @@prompt.select("Please choose an event to review:", options)
+            choice = options.index(selection)
+            create_review(event_ids[choice])
+            user.reload
         end
+        reviews
     end
 
     def create_review(event_id)
@@ -161,24 +162,24 @@ class UserInterface
     # my account
 
     def account
-        change_name = lambda do
-            name = @@prompt.collect do
-                key(:first_name).ask('Please enter your new first name:')
-                key(:last_name).ask('Please enter your new last name:')
-            user.change_name(name)
-            end
-        end
-
         options = {
             "Change Username" => lambda{new_username = @@prompt.ask('Please choose a new username:'); user.change_username(new_username); account}, 
-            "Change Name" => lambda{change_name; account}, 
+            "Change Name" => lambda do
+                name = @@prompt.collect do
+                    key(:first_name).ask('Please enter your new first name:')
+                    key(:last_name).ask('Please enter your new last name:')
+                end
+                user.change_name(name)
+                user.reload
+                account
+                end, 
             "Change Email Address" => lambda{new_email = @@prompt.ask('Please choose a new email address'); user.change_email(new_email); account}, 
             "Change City" => lambda{new_city = @@prompt.ask('Please choose a new city'); user.change_city(new_city); account}, 
             "Change Country" => lambda{new_country = @@prompt.ask('Please choose a new country'); user.change_country(new_country); account}, 
             "Delete Account" => lambda{user.delete_account; first_page}, 
             "Home" => lambda{home_page}
         }
-        
+
         call_selection(options)
     end
 
