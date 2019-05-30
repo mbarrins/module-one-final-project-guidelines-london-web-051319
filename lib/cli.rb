@@ -249,19 +249,32 @@ class UserInterface
         else 
             options = make_event_options(events, page_no, next_url)
             selection = @@prompt.select("Please choose an event to add:", options)
-            choice = options.index(selection)      
+            choice = options.index(selection)   
             if choice < events.length
-                user.add_event_from_json(events[choice])
-                user = User.find(user.id)
-                events(user)
+                event_id = events[choice].id
+                events_menu(event_id, events, user)
+                # user.add_event_from_json(events[choice])
+                # user = User.find(user.id)
+                # events(user)
             elsif choice == options.index("Load More")
                 page_no += 1
-                # binding.pry
                 select_event_to_create(*Event.new_event_search(*Event.get_json_from_search_string(search_string, page_no)), user)
             else
                 events(user)
             end
         end
+    
+    end
+
+    def events_menu(event_id, events, user)
+            "View Reviews" => lambda{view_reviews(event_id)}, 
+            "Add to my events" => lambda{user.add_event_from_json(events[choice])}, 
+            "Back to Search" => lambda{events(user)}
+    end
+
+    def view_reviews(event_id)
+        Review.find_by(event_id: event_id)
+
     
     end
 
