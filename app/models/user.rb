@@ -89,6 +89,7 @@ class User < ActiveRecord::Base
     end
 
     def change_username(username)
+        username = username.downcase
         if !!User.find_by(username: username)
             puts "That username is already taken."
         else
