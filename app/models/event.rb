@@ -7,4 +7,24 @@ class Event < ActiveRecord::Base
     belongs_to :genre
     belongs_to :sub_genre
     
+
+    def average_rating
+        (self.reviews.inject(0){|sum, review| sum + review.rating}/self.reviews.length.to_f).round(2)
+    end
+
+    def display_reviews
+        if reviews.length == 0
+            puts "You have no reviews"
+        else
+            puts "Overall rating: #{average_rating}"
+            puts "--------------------------"
+        reviews.each.with_index(1) do |review, i|
+            puts "Review #{i}: #{review.event.event_name}"
+            puts "Rating: #{review.rating}"
+            puts "Review: #{review.review}"
+            puts "Reviewed by: #{review.user.first_name}"
+            puts "--------------------------"
+        end
+    end
+    end
 end

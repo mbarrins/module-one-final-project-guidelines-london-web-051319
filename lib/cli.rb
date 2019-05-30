@@ -188,7 +188,7 @@ class UserInterface
         options = {
             "My Upcoming Events" => lambda{user.display_future_user_events; events_menu}, 
             "All My Events" => lambda{user.display_all_user_events; events_menu}, 
-            "Add New Event" => lambda{search_choice}, 
+            "Search For Events" => lambda{search_choice}, 
             "Remove Event" => lambda{remove_event}, 
             "Home Page" => lambda{home_page}
         }
@@ -280,12 +280,12 @@ class UserInterface
             events_menu
         else 
             options = make_event_options(events_data)
-            selection = @@prompt.select("Please choose an event to add:", options)
+            selection = @@prompt.select("Please choose an event:", options)
             choice = options.index(selection)
             if choice < events_details.length
                 tm_event_id = events_details[choice][2][:tm_event_id]
-                event_id = Event.find_by(tm_event_id: tm_event_id)
-                selected_events_menu(event_id, events_details, choice)
+                chosen_event = Event.find_by(tm_event_id: tm_event_id)
+                selected_events_menu(chosen_event, events_data, choice)
             elsif choice == options.index("Load More")
                 events_details.page_no += 1
                 select_event_to_create(events_data)
@@ -296,17 +296,16 @@ class UserInterface
     
     end
 
-    def selected_events_menu(event_id, events, choice)
-        options = {"View Reviews" => lambda{view_reviews(event_id)}, 
-            "Add to my events" => lambda{user.add_event_from_json(events[choice]); events_menu}, 
-            "Back to Search" => lambda{events}}
+    def selected_events_menu(chosen_event, events_data, choice)
+        options = {"View Reviews" => lambda{view_reviews(chosen_event); select_event_to_create(events_data)}, 
+            "Add to my events" => lambda{user.add_event_from_json(events_data.search_results[choice]); events_menu}, 
+            "Back to Search" => lambda{events_menu}}
         call_selection(options)
     end
 
-    def view_reviews(event_id)
-        Review.find_by(event_id: event_id)
-
-    
+    def view_reviews(event)
+        event.display_reviews
+        @@prompt.keypress("Press space or enter to return to search results", keys: [:space, :return])
     end
 
     def make_event_options(events_data)

@@ -4,20 +4,25 @@ class User < ActiveRecord::Base
     has_many :events, through: :event_dates
     has_many :reviews
 
+    @@prompt = TTY::Prompt.new
+
     def future_user_events
         self.user_events.joins(:event_date).where("event_dates.start_date >= #{Date.today}")
     end
 
     def display_future_user_events
         display_user_event_details(self.future_user_events)
+        @@prompt.keypress("Press space or enter to return to events page", keys: [:space, :return])
     end
 
     def display_all_user_events
         display_user_event_details(self.user_events)
+        @@prompt.keypress("Press space or enter to return to events page", keys: [:space, :return])
     end
 
     def display_all_user_reviews
         display_user_review_details(self.reviews)
+        @@prompt.keypress("Press space or enter to return to reviews page", keys: [:space, :return])
     end
 
     def user_reviewed_events
@@ -125,7 +130,7 @@ class User < ActiveRecord::Base
             puts "Event name: #{user_event.event_date.event_date_name}"
             puts "When: #{user_event.event_date.start_date} at #{user_event.event_date.start_time}"
             puts "Where: #{user_event.event_date.venue.venue_name}, #{user_event.event_date.venue.city}, #{user_event.event_date.venue.postcode}"
-            puts "--------------------------" if i < user_events.length
+            puts "--------------------------"
         end
     end
     end
@@ -138,7 +143,7 @@ class User < ActiveRecord::Base
             puts "Event #{i}: #{review.event.event_name}"
             puts "Rating: #{review.rating}"
             puts "Review: #{review.review}"
-            puts "--------------------------" if i < reviews.length
+            puts "--------------------------"
         end
     end
     end
