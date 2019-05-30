@@ -26,14 +26,14 @@ class EventApiData < ApiData
         events = self.data["_embedded"]["events"]
 
         events = events.map do |event_date|
-            [{
+            {event_date: {
             tm_event_date_id: event_date["id"],
             event_date_name: event_date["name"],
             url: event_date["url"],
             start_date: event_date["dates"]["start"]["localDate"],
             start_time: event_date["dates"]["start"]["localTime"]
             },
-            {
+            venue: {
             tm_venue_id: event_date["_embedded"]["venues"][0]["id"],
             venue_name: event_date["_embedded"]["venues"][0]["name"],
             url: event_date["_embedded"]["venues"][0]["url"],
@@ -41,15 +41,17 @@ class EventApiData < ApiData
             city: event_date["_embedded"]["venues"][0]["city"]["name"],
             country: event_date["_embedded"]["venues"][0]["country"]["name"]
             },
-            {
+            event: {
             tm_event_id: (!!event_date["_embedded"]["attractions"] ? event_date["_embedded"]["attractions"][0]["id"] : event_date["id"]),
             event_name: (!!event_date["_embedded"]["attractions"] ? event_date["_embedded"]["attractions"][0]["name"] : event_date["name"]),
             url: (!!event_date["_embedded"]["attractions"] ? event_date["_embedded"]["attractions"][0]["url"] : event_date["url"]),
             segment_id: Segment.find_by(tm_segment_id: event_date["classifications"][0]["segment"]["id"]).id,
             genre_id: Genre.find_by(tm_genre_id: event_date["classifications"][0]["genre"]["id"]).id,
             sub_genre_id: SubGenre.find_by(tm_sub_genre_id: event_date["classifications"][0]["subGenre"]["id"]).id
-            }]
+            }}
         end
+
+        binding.pry
     end
     events
 end
