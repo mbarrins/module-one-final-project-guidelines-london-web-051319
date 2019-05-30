@@ -141,6 +141,7 @@ class UserInterface
             if selection != "Cancel"
                 choice = options.index(selection)
                 reviews[choice].destroy
+                puts "Review successfully deleted!"
                 user.reload
             end
         end
@@ -159,6 +160,7 @@ class UserInterface
             key(:review).ask('Please enter your new review:', value: review_obj.review)
         end
         review_obj.update(review_info)
+        puts "Review successfully edited!"
     end
 
     # my account

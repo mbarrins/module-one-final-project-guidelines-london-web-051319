@@ -6,5 +6,5 @@ require_relative '../config/environment'
 session = UserInterface.new
 session.first_page
 
-binding.pry
+# binding.pry
 puts "HELLO WORLD"
