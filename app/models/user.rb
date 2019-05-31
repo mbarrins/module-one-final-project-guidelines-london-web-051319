@@ -57,26 +57,26 @@ class User < ActiveRecord::Base
     end
 
     def add_event_from_json(event_details)
-        event_date = EventDate.find_by(tm_event_date_id: event_details[0][:tm_event_date_id])
+        event_date = EventDate.find_by(tm_event_date_id: event_details[:event_date][:tm_event_date_id])
 
         if !!event_date
             UserEvent.create(user_id: self.id, event_date_id: event_date.id)
         else
-            venue = Venue.find_by(tm_venue_id: event_details[1][:tm_venue_id])
+            venue = Venue.find_by(tm_venue_id: event_details[:venue][:tm_venue_id])
 
             if !venue
                 venue = Venue.create(event_details[1])
             end
 
-            event = Event.find_by(tm_event_id: event_details[2][:tm_event_id])
+            event = Event.find_by(tm_event_id: event_details[:event][:tm_event_id])
             
             if !event
-                event = Event.create(event_details[2])
+                event = Event.create(event_details[:event])
             end
 
-            event_details[0][:event_id] = event.id
-            event_details[0][:venue_id] = venue.id
-            event_date = EventDate.create(event_details[0])
+            event_details[:event_date][:event_id] = event.id
+            event_details[:event_date][:venue_id] = venue.id
+            event_date = EventDate.create(event_details[:event_date])
             UserEvent.create(user_id: self.id, event_date_id: event_date.id)
         end
         puts "Event Successfully added!"

@@ -10,3 +10,4 @@ require_all 'app'
 APIKEY = "sqj3GomEiDTyMWkLzNhfrH0r62ZC82EA"
 EVENTSURL = "https://app.ticketmaster.com/discovery/v2/events?"
 CLASSURL = "https://app.ticketmaster.com/discovery/v2/classifications?"
+PER_PAGE = 20

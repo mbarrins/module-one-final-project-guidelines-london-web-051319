@@ -107,7 +107,7 @@ class UserInterface
         else 
             options = user.select_user_events_to_review[1]
             event_ids = user.select_user_events_to_review[0]
-            selection = @@prompt.select("Please choose an event to review:", options, per_page: 15)
+            selection = @@prompt.select("Please choose an event to review:", options, per_page: PER_PAGE)
             choice = options.index(selection)
             create_review(event_ids[choice])
             user.reload
@@ -137,7 +137,7 @@ class UserInterface
         else 
             reviews = user.reviews
             options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
-            selection = @@prompt.select("Please choose a review to edit:", options, per_page: 15)
+            selection = @@prompt.select("Please choose a review to edit:", options, per_page: PER_PAGE)
             if selection != "Cancel"
                 choice = options.index(selection)
                 edit_review(reviews[choice])
@@ -156,7 +156,7 @@ class UserInterface
         else 
             reviews = user.reviews
             options = reviews.map.with_index(1){|review, i| "#{i}: #{review.event.event_name}"} << "Cancel"
-            selection = @@prompt.select("Please choose a review to delete:", options, per_page: 15)
+            selection = @@prompt.select("Please choose a review to delete:", options, per_page: PER_PAGE)
             if selection != "Cancel"
                 choice = options.index(selection)
                 reviews[choice].destroy
@@ -236,7 +236,7 @@ class UserInterface
         else 
             events = user.user_events
             options = events.map.with_index(1){|event, i| "#{i}: #{event.event_date.event_date_name}, #{event.event_date.start_date}, #{event.event_date.venue.city}"} << "Cancel"
-            selection = @@prompt.select("Please choose an event to delete:", options, per_page: 15)
+            selection = @@prompt.select("Please choose an event to delete:", options, per_page: PER_PAGE)
             if selection != "Cancel"
                 choice = options.index(selection)
                 events[choice].destroy
@@ -310,10 +310,10 @@ class UserInterface
             events_menu
         else    
             options = make_event_options(events_data)
-            selection = @@prompt.select("Please choose an event:", options, per_page: 15)
+            selection = @@prompt.select("Please choose an event:", options, per_page: PER_PAGE)
             choice = options.index(selection)
             if choice < events_details.length
-                tm_event_id = events_details[choice][2][:tm_event_id]
+                tm_event_id = events_details[choice][:event][:tm_event_id]
                 chosen_event = Event.find_by(tm_event_id: tm_event_id)
                 selected_events_menu(chosen_event, events_data, choice)
             elsif choice == options.index("Next #{events_data.page_size} Events")
@@ -353,10 +353,10 @@ class UserInterface
 
     def make_event_options(events_data)
         options = events_data.search_results.map.with_index(1) do |event, i| 
-            "Event #{i+(events_data.page_no*events_data.search_results.length)}: #{event[2][:event_name]}\n" << 
-            "Event name: #{event[0][:event_date_name]}\n" <<
-            "When: #{event[0][:start_date]} at #{event[0][:start_time]}\n" <<
-            "Where: #{event[1][:venue_name]}, #{event[1][:city]}, #{event[1][:postcode]}\n" <<
+            "Event #{i+(events_data.page_no*events_data.search_results.length)}: #{event[:event][:event_name]}\n" << 
+            "Event name: #{event[:event_date][:event_date_name]}\n" <<
+            "When: #{event[:event_date][:start_date]} at #{event[:event_date][:start_time]}\n" <<
+            "Where: #{event[:venue][:venue_name]}, #{event[:venue][:city]}, #{event[:venue][:postcode]}\n" <<
             "--------------------------"
         end
 
@@ -378,12 +378,12 @@ class UserInterface
     private
 
     def selection(options)
-        selection = @@prompt.select("Please choose an option:", options, per_page: 20)
+        selection = @@prompt.select("Please choose an option:", options, per_page: PER_PAGE)
         options.index(selection)
     end
 
     def call_selection(options)
-        selection = @@prompt.select("What would you like to do?", options.keys, per_page: 20)
+        selection = @@prompt.select("What would you like to do?", options.keys, per_page: PER_PAGE)
         options[selection].call
     end
 
