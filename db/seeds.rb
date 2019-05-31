@@ -2,7 +2,20 @@ class_api = ClassificationApiData.new(url: CLASSURL, api_key: APIKEY)
 class_api.populate_tables
 
 user_list = [
-  ["username1", "password1", "first", "last", "email", "London", "UK"],
+  ["username1", "password1", "Jerry", "Berry", "email1@email.com", "London", "GB"],
+  ["username2", "password1", "Barold", "Thampson", "email2@email.com", "London", "GB"]
+  ["username3", "password1", "Phteven", "Fork", "email3@email.com", "Birmingham", "GB"]
+  ["username4", "password1", "Terry", "Swelve", "email4@email.com", "Torquay", "GB"]
+  ["username5", "password1", "Brenda", "Shortgun", "email5@email.com", "London", "GB"]
+  ["username6", "password1", "Harnold", "Alice", "email6@email.com", "Edinburgh", "GB"]
+  ["username7", "password1", "Jenkin", "Yes", "email7@email.com", "Truro", "GB"]
+  ["username8", "password1", "Perkin", "No", "email8@email.com", "Bristol", "GB"]
+  ["username9", "password1", "Doris", "Night", "email9@email.com", "Nottingham", "GB"]
+  ["username10", "password1", "Dorothea", "Apple", "email10@email.com", "Oxford", "GB"]
+  ["username11", "password1", "Freddo", "Goffinger", "email11@email.com", "Cambridge", "GB"]
+  ["username12", "password1", "Gerild", "Berild", "email12@email.com", "Toronto", "Canada"]
+  ["username13", "password1", "Horatia", "No", "email13@email.com", "New York", "USA"]
+  ["jaffa", "cake", "Jaffa", "Cake", "email14@email.com", "Auckland", "New Zealand"]
 ]
 
 user_list.each do |username, password, first_name, last_name, email, city, country|
