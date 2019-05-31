@@ -264,12 +264,19 @@ class UserInterface
         choice = selection(options)
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
-            key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
-            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
+            puts "Please enter the date range to search: \n"
+            key(:startDateTime).ask(' Start date:', value: Date.today.strftime("%F"))
+            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))
             key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
             key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
-        search_info = search_info.select{|key,value| !!value}
+        search_info = search_info.select{|q,a| !!a && a != ""}.map do |q,a|
+                if q == :startDateTime
+                    a << "T00:00:00Z"
+                elsif q == :endDateTime
+                    a << "T23:59:00Z"
+                end
+            end
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
         search_string = search_string.join("")
 
@@ -287,13 +294,20 @@ class UserInterface
         puts "Please enter search criteria. Leave blank to exclude from search."
         search_info = @@prompt.collect do
             key(:keyword).ask('Please enter the name of the event:')
-            key(:startDateTime).ask("Please enter the date range to search: \n Start date:", value: Date.today.strftime("%F"))<<"T00:00:00Z"
-            key(:endDateTime).ask(' End date:  ', value: Date.today.next_month.strftime("%F"))<<"T23:59:00Z"
+            puts "Please enter the date range to search: \n"
+            key(:startDateTime).ask(" Start date:", value: Date.today.strftime("%F"))
+            key(:endDateTime).ask(' End date:  ', value: Date.today.next_month.strftime("%F"))
             key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
             key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
         
-        search_info = search_info.select{|key,value| !!value}
+        search_info = search_info.select{|q,a| !!a && a != ""}.map do |q,a|
+            if q == :startDateTime
+                a << "T00:00:00Z"
+            elsif q == :endDateTime
+                a << "T23:59:00Z"
+            end
+        end
         search_string = search_info.map {|key,search| "&#{key}=#{search}"}.join("")
         events_data = EventApiData.new_with_data(url: EVENTSURL, api_key: APIKEY, search_string: search_string)
 
@@ -397,6 +411,7 @@ class UserInterface
     end
 
     def clear
+        puts
         print "\e[2J\e[f"
     end
 end
