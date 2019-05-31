@@ -263,20 +263,38 @@ class UserInterface
         options = sub_genres.map {|sg| sg.sub_genre_name}
         choice = selection(options)
         puts "Please enter search criteria. Leave blank to exclude from search."
+        start_date_valid = false
+        end_date_valid = false
+
         search_info = @@prompt.collect do
-            puts "Please enter the date range to search: \n"
-            key(:startDateTime).ask(' Start date:', value: Date.today.strftime("%F"))
-            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))
+            puts "Please enter the date range to search:"
+            while !start_date_valid
+                start_date = key(:startDateTime).ask(' Start date:') do |q|
+                    q.value Date.today.strftime("%d/%m/%Y")
+                end
+
+                start_date_valid = (Date.strptime(start_date, "%d/%m/%Y") rescue false) && ((Date.strptime(start_date, "%d/%m/%Y") > Date.yesterday) rescue false)
+                puts "Please enter a valid future date." if !start_date_valid
+            end
+
+            while !end_date_valid
+                end_date = key(:endDateTime).ask(' End date:') do |q|
+                    q.value Date.today.next_month.strftime("%d/%m/%Y")
+                end
+
+                end_date_valid = (Date.strptime(end_date, "%d/%m/%Y") rescue false) && (Date.strptime(end_date, "%d/%m/%Y") > Date.yesterday rescue false)
+                puts "Please enter a valid future date." if !end_date_valid
+            end
+
             key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
             key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
-        search_info = search_info.select{|q,a| !!a && a != ""}.map do |q,a|
-                if q == :startDateTime
-                    a << "T00:00:00Z"
-                elsif q == :endDateTime
-                    a << "T23:59:00Z"
-                end
-            end
+        
+        search_info = search_info.select{|q,a| !!a}
+        
+        search_info[:startDateTime] = (Date.strptime(search_info[:startDateTime], "%d/%m/%Y").strftime("%F")) << "T00:00:00Z"
+        search_info[:endDateTime] = (Date.strptime(search_info[:endDateTime], "%d/%m/%Y").strftime("%F")) << "T23:59:00Z"
+
         search_string = search_info.map {|key,search| "&#{key}=#{search}"} << "&subGenreId=#{sub_genres[choice].tm_sub_genre_id}"
         search_string = search_string.join("")
 
@@ -292,22 +310,40 @@ class UserInterface
         clear
         user_prompt = self.user
         puts "Please enter search criteria. Leave blank to exclude from search."
-        search_info = @@prompt.collect do
+        start_date_valid = false
+        end_date_valid = false
+
+        search_info = @@prompt.collect do |q|
             key(:keyword).ask('Please enter the name of the event:')
-            puts "Please enter the date range to search: \n"
-            key(:startDateTime).ask(" Start date:", value: Date.today.strftime("%F"))
-            key(:endDateTime).ask(' End date:', value: Date.today.next_month.strftime("%F"))
+            puts "Please enter the date range to search:"
+
+            while !start_date_valid
+                start_date = key(:startDateTime).ask(' Start date:') do |q|
+                    q.value Date.today.strftime("%d/%m/%Y")
+                end
+
+                start_date_valid = (Date.strptime(start_date, "%d/%m/%Y") rescue false) && ((Date.strptime(start_date, "%d/%m/%Y") > Date.yesterday) rescue false)
+                puts "Please enter a valid future date." if !start_date_valid
+            end
+            
+            while !end_date_valid
+                end_date = key(:endDateTime).ask(' End date:') do |q|
+                    q.value Date.today.next_month.strftime("%d/%m/%Y")
+                end
+
+                end_date_valid = (Date.strptime(end_date, "%d/%m/%Y") rescue false) && (Date.strptime(end_date, "%d/%m/%Y") > Date.yesterday rescue false)
+                puts "Please enter a valid future date." if !end_date_valid
+            end
+
             key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
             key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
         
-        search_info = search_info.select{|q,a| !!a && a != ""}.map do |q,a|
-            if q == :startDateTime
-                a << "T00:00:00Z"
-            elsif q == :endDateTime
-                a << "T23:59:00Z"
-            end
-        end
+        search_info = search_info.select{|q,a| !!a}
+        
+        search_info[:startDateTime] = (Date.strptime(search_info[:startDateTime], "%d/%m/%Y").strftime("%F")) << "T00:00:00Z"
+        search_info[:endDateTime] = (Date.strptime(search_info[:endDateTime], "%d/%m/%Y").strftime("%F")) << "T23:59:00Z"
+        
         search_string = search_info.map {|key,search| "&#{key}=#{search}"}.join("")
         events_data = EventApiData.new_with_data(url: EVENTSURL, api_key: APIKEY, search_string: search_string)
 
@@ -414,4 +450,5 @@ class UserInterface
         puts
         print "\e[2J\e[f"
     end
-end
+
+    end
