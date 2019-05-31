@@ -363,8 +363,7 @@ class UserInterface
             selection = @@prompt.select("Please choose an event:", options, per_page: PER_PAGE)
             choice = options.index(selection)
             if choice < events_details.length
-                tm_event_id = events_details[choice][:event][:tm_event_id]
-                chosen_event = Event.find_by(tm_event_id: tm_event_id)
+                chosen_event = events_details[choice].event
                 selected_events_menu(chosen_event, events_data, choice)
             elsif choice == options.index("Next #{events_data.page_size} Events")
                 events_data.page_no += 1
@@ -403,10 +402,10 @@ class UserInterface
 
     def make_event_options(events_data)
         options = events_data.search_results.map.with_index(1) do |event, i| 
-            "Event #{i+(events_data.page_no*events_data.search_results.length)}: #{event[:event][:event_name]}\n" << 
-            "Event name: #{event[:event_date][:event_date_name]}\n" <<
-            "When: #{event[:event_date][:start_date]} at #{event[:event_date][:start_time]}\n" <<
-            "Where: #{event[:venue][:venue_name]}, #{event[:venue][:city]}, #{event[:venue][:postcode]}\n" <<
+            "Event #{i+(events_data.page_no*events_data.search_results.length)}: #{event.event.event_name}\n" << 
+            "Event name: #{event.event_date_name}\n" <<
+            "When: #{event.start_date} at #{event.start_time}\n" <<
+            "Where: #{event.venue.venue_name}, #{event.venue.city}, #{event.venue.postcode}\n" <<
             "--------------------------"
         end
 
