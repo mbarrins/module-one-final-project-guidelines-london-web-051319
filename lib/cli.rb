@@ -266,7 +266,7 @@ class UserInterface
         search_info = @@prompt.collect do
             puts "Please enter the date range to search: \n"
             key(:startDateTime).ask(' Start date:', value: Date.today.strftime("%F"))
-            key(:endDateTime).ask('End date:', value: Date.today.next_month.strftime("%F"))
+            key(:endDateTime).ask(' End date:  ', value: Date.today.next_month.strftime("%F"))
             key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
             key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
@@ -296,7 +296,7 @@ class UserInterface
             key(:keyword).ask('Please enter the name of the event:')
             puts "Please enter the date range to search: \n"
             key(:startDateTime).ask(" Start date:", value: Date.today.strftime("%F"))
-            key(:endDateTime).ask(' End date:  ', value: Date.today.next_month.strftime("%F"))
+            key(:endDateTime).ask(" End date:  ", value: Date.today.next_month.strftime("%F"))
             key(:city).ask('Please enter the city to search:', value: user_prompt.city || "")
             key(:countryCode).ask('Please enter the country to search:', value: user_prompt.country || "")
         end
