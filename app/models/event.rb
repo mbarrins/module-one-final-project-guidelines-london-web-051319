@@ -14,7 +14,7 @@ class Event < ActiveRecord::Base
 
     def display_reviews
         if reviews.length == 0
-            puts "Therea are no reviews for this event"
+            puts "There are no reviews for this event"
         else
             puts "Overall rating: #{average_rating}"
             puts "--------------------------"

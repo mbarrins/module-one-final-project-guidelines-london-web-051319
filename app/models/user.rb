@@ -12,17 +12,14 @@ class User < ActiveRecord::Base
 
     def display_future_user_events
         display_user_event_details(self.future_user_events)
-        @@prompt.keypress("Press space or enter to return to events page", keys: [:space, :return])
     end
 
     def display_all_user_events
         display_user_event_details(self.user_events)
-        @@prompt.keypress("Press space or enter to return to events page", keys: [:space, :return])
     end
 
     def display_all_user_reviews
         display_user_review_details(self.reviews)
-        @@prompt.keypress("Press space or enter to return to reviews page", keys: [:space, :return])
     end
 
     def user_reviewed_events
@@ -50,6 +47,8 @@ class User < ActiveRecord::Base
         end
         review_info[:user_id] = self.id
         Review.create(review_info)
+        puts "Review added!"
+        @@prompt.keypress("Press any key to return to Reviews Home")
     end
 
     def events_by_date_range(start_date, end_date)
@@ -134,7 +133,7 @@ class User < ActiveRecord::Base
     def display_user_event_details(user_events)
         if user_events.length == 0
             puts "You have no events"
-            @@prompt.keypress("Press any key to continue")
+            @@prompt.keypress("Press any key to return to Events Home")
         else
             user_events.each.with_index(1) do |user_event, i|
                 puts "Event #{i}: #{user_event.event_date.event.event_name}"
@@ -143,13 +142,14 @@ class User < ActiveRecord::Base
                 puts "Where: #{user_event.event_date.venue.venue_name}, #{user_event.event_date.venue.city}, #{user_event.event_date.venue.postcode}"
                 puts "--------------------------"
             end
+            @@prompt.keypress("Press any key to return to Events Home")
         end
     end
 
     def display_user_review_details(reviews)
         if reviews.length == 0
             puts "You have no reviews"
-            @@prompt.keypress("Press any key to continue")
+            @@prompt.keypress("Press any key to return to Reviews Home")
         else
             reviews.each.with_index(1) do |review, i|
                 puts "Event #{i}: #{review.event.event_name}"
@@ -157,6 +157,7 @@ class User < ActiveRecord::Base
                 puts "Review: #{review.review}"
                 puts "--------------------------"
             end
+            @@prompt.keypress("Press any key to return to Reviews Home")
         end
     end
 end

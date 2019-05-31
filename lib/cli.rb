@@ -5,7 +5,16 @@ class UserInterface
 
     @@prompt = TTY::Prompt.new
 
-    # first page    
+    # first page   
+    
+    def splash_page
+        clear
+        puts "========================================================================"
+        puts " Welcome to RevEnts - an app where you can search for and review events"
+        puts "========================================================================"
+        @@prompt.keypress("Press any key to continue")
+        first_page
+    end
 
     def first_page
         options = {
@@ -13,8 +22,6 @@ class UserInterface
             "Create Account" => lambda{create_account}, 
             "Exit" => lambda{puts "Goodbye"}
         }
-
-        clear
         call_selection(options)
     end
 
@@ -64,7 +71,7 @@ class UserInterface
     def home_page
         clear
         if !!user
-            puts "Welcome #{user.first_name}! \n"
+            puts "Welcome #{user.first_name} to your RevEnts Home Page!"
             options = {
                 "Events" => lambda{events_menu}, 
                 "My Reviews" => lambda{reviews_menu}, 
@@ -336,7 +343,7 @@ class UserInterface
     def view_reviews(event)
         if !!event
             event.display_reviews
-            @@prompt.keypress("Press space or enter to return to search results", keys: [:space, :return])
+            @@prompt.keypress("Press space or enter to return event", keys: [:space, :return])
         else
             puts "There are no reviews for this event"
             @@prompt.keypress("Press any key to continue")
@@ -376,7 +383,7 @@ class UserInterface
     end
 
     def call_selection(options)
-        selection = @@prompt.select("Please choose an option:", options.keys, per_page: PER_PAGE)
+        selection = @@prompt.select("What would you like to do?", options.keys, per_page: PER_PAGE)
         options[selection].call
     end
 
