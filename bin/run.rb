@@ -1,10 +1,10 @@
 require_relative '../config/environment'
 
 
-# binding.pry
+binding.pry
 
 session = UserInterface.new
-session.first_page
+session.splash_page
 
 # binding.pry
 puts "HELLO WORLD"
