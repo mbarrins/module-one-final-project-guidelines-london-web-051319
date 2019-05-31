@@ -278,7 +278,7 @@ class UserInterface
             end
 
             while !end_date_valid
-                end_date = key(:endDateTime).ask(' End date:') do |q|
+                end_date = key(:endDateTime).ask(' End date:  ') do |q|
                     q.value Date.today.next_month.strftime("%d/%m/%Y")
                 end
 
@@ -327,7 +327,7 @@ class UserInterface
             end
             
             while !end_date_valid
-                end_date = key(:endDateTime).ask(' End date:') do |q|
+                end_date = key(:endDateTime).ask(' End date:  ') do |q|
                     q.value Date.today.next_month.strftime("%d/%m/%Y")
                 end
 
