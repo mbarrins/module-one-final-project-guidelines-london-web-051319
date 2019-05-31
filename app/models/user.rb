@@ -65,7 +65,7 @@ class User < ActiveRecord::Base
             venue = Venue.find_by(tm_venue_id: event_details[:venue][:tm_venue_id])
 
             if !venue
-                venue = Venue.create(event_details[1])
+                venue = Venue.create(event_details[:venue])
             end
 
             event = Event.find_by(tm_event_id: event_details[:event][:tm_event_id])
