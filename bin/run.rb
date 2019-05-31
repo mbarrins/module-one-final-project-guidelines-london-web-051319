@@ -1,7 +1,7 @@
 require_relative '../config/environment'
 
 
-binding.pry
+# binding.pry
 
 session = UserInterface.new
 session.splash_page

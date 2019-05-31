@@ -273,7 +273,7 @@ class UserInterface
                     q.value Date.today.strftime("%d/%m/%Y")
                 end
 
-                start_date_valid = (Date.strptime(start_date, "%d/%m/%Y") rescue false) && ((Date.strptime(start_date, "%d/%m/%Y") > Date.yesterday) rescue false)
+                start_date_valid = (Date.strptime(start_date, "%d/%m/%Y") > Date.yesterday rescue false)
                 puts "Please enter a valid future date." if !start_date_valid
             end
 
@@ -282,7 +282,7 @@ class UserInterface
                     q.value Date.today.next_month.strftime("%d/%m/%Y")
                 end
 
-                end_date_valid = (Date.strptime(end_date, "%d/%m/%Y") rescue false) && (Date.strptime(end_date, "%d/%m/%Y") > Date.yesterday rescue false)
+                end_date_valid = (Date.strptime(end_date, "%d/%m/%Y") > Date.yesterday rescue false)
                 puts "Please enter a valid future date." if !end_date_valid
             end
 
@@ -322,7 +322,7 @@ class UserInterface
                     q.value Date.today.strftime("%d/%m/%Y")
                 end
 
-                start_date_valid = (Date.strptime(start_date, "%d/%m/%Y") rescue false) && ((Date.strptime(start_date, "%d/%m/%Y") > Date.yesterday) rescue false)
+                start_date_valid = (Date.strptime(start_date, "%d/%m/%Y") > Date.yesterday rescue false)
                 puts "Please enter a valid future date." if !start_date_valid
             end
             
@@ -331,7 +331,7 @@ class UserInterface
                     q.value Date.today.next_month.strftime("%d/%m/%Y")
                 end
 
-                end_date_valid = (Date.strptime(end_date, "%d/%m/%Y") rescue false) && (Date.strptime(end_date, "%d/%m/%Y") > Date.yesterday rescue false)
+                end_date_valid = (Date.strptime(end_date, "%d/%m/%Y") > Date.yesterday rescue false)
                 puts "Please enter a valid future date." if !end_date_valid
             end
 
