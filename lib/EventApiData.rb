@@ -50,8 +50,6 @@ class EventApiData < ApiData
             sub_genre_id: SubGenre.find_by(tm_sub_genre_id: event_date["classifications"][0]["subGenre"]["id"]).id
             }}
         end
-
-        binding.pry
     end
     events
 end
