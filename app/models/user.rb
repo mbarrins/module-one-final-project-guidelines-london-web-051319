@@ -115,12 +115,16 @@ class User < ActiveRecord::Base
             puts "You have no events"
             @@prompt.keypress("Press any key to return to Events Home")
         else
+
             user_events.each.with_index(1) do |user_event, i|
                 puts "Event #{i}: #{user_event.event_date.event.event_name}"
                 puts "Event name: #{user_event.event_date.event_date_name}"
                 puts "When: #{user_event.event_date.start_date} at #{user_event.event_date.start_time}"
                 puts "Where: #{user_event.event_date.venue.venue_name}, #{user_event.event_date.venue.city}, #{user_event.event_date.venue.postcode}"
                 puts "--------------------------"
+                if i % PER_PAGE == 0 && i < user_events.length
+                    @@prompt.keypress("Displaying #{i - PER_PAGE + 1} to #{i} events, press any key to see more events")
+                end
             end
             @@prompt.keypress("Press any key to return to Events Home")
         end
@@ -136,6 +140,9 @@ class User < ActiveRecord::Base
                 puts "Rating: #{review.rating}"
                 puts "Review: #{review.review}"
                 puts "--------------------------"
+                if i % PER_PAGE == 0 && i < user_events.length
+                    @@prompt.keypress("Displaying #{i - PER_PAGE + 1} to #{i} events, press any key to see more events")
+                end
             end
             @@prompt.keypress("Press any key to return to Reviews Home")
         end

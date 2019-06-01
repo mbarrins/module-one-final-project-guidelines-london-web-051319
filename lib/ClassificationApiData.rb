@@ -35,7 +35,7 @@ class ClassificationApiData < ApiData
   def update_tables
     segments.each do |segment|
       if !Segment.find_by(tm_segment_id: segment[:tm_segment_id])
-        Segment.create(segment)
+        Segment.find_or_create_by(segment)
       end
     end
 
@@ -45,7 +45,7 @@ class ClassificationApiData < ApiData
 
     genres.each do |genre|
       if !Genre.find_by(tm_genre_id: genre[:tm_genre_id])
-        Genre.create(genre)
+        Genre.find_or_create_by(genre)
       end
     end
 
@@ -55,7 +55,7 @@ class ClassificationApiData < ApiData
 
     sub_genres.each do |sub_genre|
       if !SubGenre.find_by(tm_sub_genre_id: sub_genre[:sub_genre_id])
-        SubGenre.create(sub_genre)
+        SubGenre.find_or_create_by(sub_genre)
       end
     end
     

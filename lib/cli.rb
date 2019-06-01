@@ -427,7 +427,7 @@ class UserInterface
     private
 
     def selection(options)
-        selection = @@prompt.select("Please choose an option:", options, per_page: PER_PAGE)
+        selection = @@prompt.select("Please choose an option:", options, per_page: PER_PAGE*2)
         options.index(selection)
     end
 

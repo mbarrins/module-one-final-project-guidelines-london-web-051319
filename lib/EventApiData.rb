@@ -1,14 +1,14 @@
 class EventApiData < ApiData
   attr_accessor :search_string, :page_no, :page_size, :next_url
 
-  def initialize(url:, search_string: nil, api_key: nil, page_no: 0, page_size: 10)
+  def initialize(url:, search_string: nil, api_key: nil, page_no: 0, page_size: PER_PAGE-3)
     super
     @search_string = search_string
     @page_no = page_no
     @page_size = page_size
   end
 
-  def self.new_with_data(url:, search_string:, api_key:, page_no: 0, page_size: 10)
+  def self.new_with_data(url:, search_string:, api_key:, page_no: 0, page_size: PER_PAGE-3)
     event = EventApiData.new(url: url, search_string: search_string, api_key: api_key, page_no: page_no, page_size: page_size)
     event.get_data
     event
