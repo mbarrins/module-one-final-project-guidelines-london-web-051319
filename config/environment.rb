@@ -11,4 +11,4 @@ require_all 'config'
 #APIKEY = ""  # Please enter Ticketmaster API key here
 EVENTSURL = "https://app.ticketmaster.com/discovery/v2/events?"
 CLASSURL = "https://app.ticketmaster.com/discovery/v2/classifications?"
-PER_PAGE = 10 
+PER_PAGE = 10
