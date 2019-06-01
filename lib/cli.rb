@@ -105,12 +105,14 @@ class UserInterface
             puts "You have no events to review"
             @@prompt.keypress("Press any key to continue")
         else 
-            options = user.select_user_events_to_review[1]
+            options = user.select_user_events_to_review[1] << "Cancel"
             event_ids = user.select_user_events_to_review[0]
             selection = @@prompt.select("Please choose an event to review:", options, per_page: PER_PAGE)
-            choice = options.index(selection)
-            create_review(event_ids[choice])
-            user.reload
+            if selection != "Cancel"
+                choice = options.index(selection)
+                create_review(event_ids[choice])
+                user.reload
+            end
         end
         reviews_menu
     end
